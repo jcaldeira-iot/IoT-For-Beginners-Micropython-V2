@@ -52,4 +52,4 @@ while True:
 
   mqtt_client.check_msg()
     
-  time.sleep(5)
+  time.sleep(2)
