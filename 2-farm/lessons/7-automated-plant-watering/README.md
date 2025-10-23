@@ -104,7 +104,7 @@ So far your relay is controlled by the IoT device directly based off a single so
 
     > ⚠️ You can refer to [the instructions for receive telemetry over MQTT](../../../1-getting-started/lessons/4-connect-internet/README.md#receive-telemetry-from-the-mqtt-broker-server-side) and [sending commands over MQTT](../../../1-getting-started/lessons/4-connect-internet/README.md#task---send-commands-to-the-mqtt-broker-server-side) in project 1, lesson 4 if needed.
 
-1. Add the relevant **device code** to control the relay from received commands, using the `relay_on` property from the message. Send true for `relay_on` if the `soil_moisture` is greater than 2047, otherwise send false, the same as the logic you added for the IoT device earlier.
+1. Add the relevant **device code** to control the relay from received commands, using the `relay_on` property from the message. Send true for `relay_on` if the `soil_moisture` is greater than 2047, otherwise send false, the same as the logic you added for the IoT device earlier. Unlike the nightlight project, in this case we do not want the ESP32 to block while waiting for commands from the server. Therefore, the instruction `mqtt_client.check_msg()` should be used instead of `mqtt_client.wait_msg()`.
 
     > ⚠️ You can refer to [the instructions for responding to commands from MQTT in project 1, lesson 4 if needed](../../../1-getting-started/lessons/4-connect-internet/esp32-commands.md).
 
