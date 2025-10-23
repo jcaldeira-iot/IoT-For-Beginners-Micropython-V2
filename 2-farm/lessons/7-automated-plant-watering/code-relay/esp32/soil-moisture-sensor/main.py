@@ -15,4 +15,4 @@ while True:
         print("Soil Moisture is ok, turning relay off (LED on).")
         relay.off()
     
-    time.sleep(1)
+    time.sleep(2)
