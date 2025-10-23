@@ -64,7 +64,7 @@ Program the ESP32.
         soil_moisture = adc.read()
         print("Soil moisture:", soil_moisture)
 
-        time.sleep(1)
+        time.sleep(2)
     ```
 
     This will read the soil moisture level on a scale of 0-4095 using the `read` property of the `ADC` class. This property reads the analog value from the pin. This value is then printed to the console.
