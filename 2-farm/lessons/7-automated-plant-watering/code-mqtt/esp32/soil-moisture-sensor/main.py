@@ -50,6 +50,6 @@ while True:
 
   mqtt_client.publish(client_telemetry_topic, telemetry)
 
-  mqtt_client.wait_msg()
+  mqtt_client.check_msg()
     
   time.sleep(10)
