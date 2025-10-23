@@ -7,4 +7,4 @@ while True:
     soil_moisture = adc.read()
     print("Soil moisture:", soil_moisture)
     
-    time.sleep(1)
+    time.sleep(2)
