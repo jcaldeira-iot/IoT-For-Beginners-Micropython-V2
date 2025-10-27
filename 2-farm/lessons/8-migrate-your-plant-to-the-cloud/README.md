@@ -275,7 +275,7 @@ The IoT device can be registered with your IoT Hub using the Azure CLI.
 
     This will create a device with an ID of `soil-moisture-sensor`.
 
-1. When your IoT device connects to your IoT Hub using the micropython SDK, it needs to use a SAS token. Run the following command to generate a SAS token for a target IoT Hub device:
+1. When your IoT device connects to your IoT Hub using the micropython SDK, it needs to use a SAS token as a connection string. Run the following command to generate a SAS token for a target IoT Hub device:
 
     ```sh
     az iot hub generate-sas-token --device-id soil-moisture-sensor \
