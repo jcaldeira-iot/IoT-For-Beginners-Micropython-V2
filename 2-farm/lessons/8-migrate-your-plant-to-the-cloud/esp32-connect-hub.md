@@ -27,7 +27,7 @@ The next step is to connect your device to IoT Hub.
    The `ioth` package will be installed from the [`GitHub repository`](https://github.com/jcaldeira-iot/iot-hub-micropython-client/) if it is not already present on the device. This package includes the SDK required to communicate with your IoT Hub.
 
 
-1. Remove the `from umqtt.simple import MQTTClient` line as this library is no longer needed. Remove all the MQTT code including the topic names, all code that uses `mqtt_client` and the `handle_command`. Keep the `while True:` loop, just delete the `mqtt_client.publish` and `mqtt_client.wait_msg` lines form this loop.
+1. Remove the `from umqtt.simple import MQTTClient` line as this library is no longer needed. Remove all the MQTT code including the topic names, all code that uses `mqtt_client` and the `handle_command`. Keep the `while True:` loop, just delete the `mqtt_client.publish` and `mqtt_client.check_msg` lines form this loop.
 
 1. Add the following code below the import statements:
 
@@ -39,7 +39,7 @@ The next step is to connect your device to IoT Hub.
 
     Replace `<hub_name>` with your IoT hub name, replace `<sas_token>` with the SAS token you retrieved for the device earlier in this lesson (something like "SharedAccessSignature sr=...").
 
-    > 💁 This is not best practice. Connection strings should never be stored in source code, as this can be checked into source code control and found by anyone. We are doing this here for the sake of simplicity.
+    > 💁 This is not best practice. SAS token should never be stored in source code, as this can be checked into source code control and found by anyone. We are doing this here for the sake of simplicity.
 
 1. Below this code, add the following to create a device client object that can communicate with IoT Hub, and connect it:
 
