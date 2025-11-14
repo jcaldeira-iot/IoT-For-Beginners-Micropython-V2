@@ -320,7 +320,7 @@ The data will be saved as a JSON blob with the following format:
 1. Also inside the `for event in events:` loop in the `main` function, add the following code below the previous one:
 
     ```python
-    event_body = json.loads(event.get_body().decode('utf-8'))
+    event_body = json.loads(json.loads(event.get_body().decode('utf-8')))
     blob_body = {
         'device_id' : device_id,
         'timestamp' : event.iothub_metadata['enqueuedtime'],
