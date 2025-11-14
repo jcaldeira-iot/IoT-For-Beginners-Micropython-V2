@@ -50,7 +50,7 @@ Next, you will prepare your code to read each line of a GPX file, extract the la
     ```
     > ⚠️ Take a look at the contents of the GPX file to better understand how the parsing logic works.
 
-1. Now you can send GPS data to the IoT Hub. Add the following inside the `if` statement:
+1. Now you can send GPS data to the IoT Hub. Add the following inside the `if` statement introduced in the previous step:
 
     ```python
     telemetry = json.dumps({ "gps" : {"lat" : lat, "lon" : lon}})
