@@ -28,7 +28,7 @@ def main(events: List[func.EventHubEvent]):
         container_client = get_or_create_container('gps-data')
         blob = container_client.get_blob_client(blob_name)
 
-        event_body = json.loads(event.get_body().decode('utf-8'))
+        event_body = json.loads(json.loads(event.get_body().decode('utf-8')))
         blob_body = {
             'device_id' : device_id,
             'timestamp' : event.iothub_metadata['enqueuedtime'],
@@ -37,3 +37,4 @@ def main(events: List[func.EventHubEvent]):
 
         logging.info(f'Writing blob to {blob_name} - {blob_body}')
         blob.upload_blob(json.dumps(blob_body).encode('utf-8'))
+
