@@ -58,6 +58,6 @@ Next, you will prepare your code to read each line of a GPX file, extract the la
     device_client.send_telemetry(telemetry)
     ```
 
-1. Finally, update the `open` function to read from the `gpsTrack.gpx` file you downloaded..
+1. Finally, update the `open` function to read from the `gpsTrack.gpx` file you downloaded.
 
 > 💁 You can find this code in the [code/esp32](code/esp32) folder.
