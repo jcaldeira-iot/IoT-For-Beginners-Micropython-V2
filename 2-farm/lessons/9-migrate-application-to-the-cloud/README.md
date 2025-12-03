@@ -115,7 +115,7 @@ The Azure Functions CLI can be used to create a new Functions app.
 1. Run the following command to create a Functions app in this folder:
 
     ```sh
-    func init --worker-runtime python soil-moisture-trigger
+    func init soil-moisture-trigger --python --model V2
     ```
 
     This will create three files inside the current folder:
@@ -123,6 +123,7 @@ The Azure Functions CLI can be used to create a new Functions app.
     * `host.json` - this JSON document contains settings for your Functions app. You won't need to modify these settings.
     * `local.settings.json` - this JSON document contains settings your app would use when running locally, such as connection strings for your IoT Hub. These settings are local only, and should not be added to source code control. When you deploy the app to the cloud, these settings are not deployed, instead your settings are loaded from application settings. This will be covered later in this lesson.
     * `requirements.txt` - this is a [Pip requirements file](https://pip.pypa.io/en/stable/user_guide/#requirements-files) that contains the Pip packages needed to run your Functions app.
+    * `function_app.py` - this is the Python code file that will contain the trigger.
 
 1. The `local.settings.json` file has a setting for the storage account that the Functions app will use. This defaults to an empty setting, so needs to be set. To connect to the Azurite local storage emulator, set this value to the following:
 
