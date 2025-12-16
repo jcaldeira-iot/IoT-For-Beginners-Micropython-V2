@@ -295,7 +295,6 @@ To connect to the Registry Manager, you need a connection string.
 1. Add the following imports to the `function_app.py` file:
 
     ```python
-    import json
     import os
     from azure.iot.hub import IoTHubRegistryManager
     from azure.iot.hub.models import CloudToDeviceMethod
@@ -391,7 +390,7 @@ Your Functions app needs to be deployed to a Functions App resource in Azure, li
     ```sh
     az functionapp create --resource-group soil-moisture-sensor \
                           --runtime python \
-                          --functions-version 3 \
+                          --functions-version 4 \
                           --os-type Linux \
                           --consumption-plan-location <location> \
                           --storage-account <storage_name> \
@@ -404,7 +403,7 @@ Your Functions app needs to be deployed to a Functions App resource in Azure, li
 
     Replace `<functions_app_name>` with a unique name for your Functions App. This will need to be globally unique as it forms part of a URL that can be used to access the Functions App. Use something like `soil-moisture-sensor-` and add a unique identifier on the end, like some random words or your name.
 
-    The `--functions-version 3` option sets the version of Azure Functions to use. Version 3 is the latest version.
+    The `--functions-version 4` option sets the version of Azure Functions to use.
 
     The `--os-type Linux` tells the Functions runtime to use Linux as the OS to host these functions. Functions can be hosted on Linux or Windows, depending on the programming language used. Python apps are only supported on Linux.
 
