@@ -140,13 +140,14 @@ The Azure Functions tooling is available as a CLI, known as the Azure Functions 
 
     ```output
     ...soil-moisture-trigger$ func start
-    Found Python version 3.9.1 (python3).
+    Resolving worker runtime to 'python'.
+    Found Python version 3.12.3 (python3).
     
     Azure Functions Core Tools
-    Core Tools Version:       3.0.3442 Commit hash: 6bfab24b2743f8421475d996402c398d2fe4a9e0  (64-bit)
-    Function Runtime Version: 3.0.15417.0
-    
-    [2021-05-05T01:24:46.795Z] No job functions found.
+    Core Tools Version:       4.5.0+e74aae22c9630777c9f58354f290a6e214218546 (64-bit)
+    Function Runtime Version: 4.1044.400.25520
+
+    [2025-12-16T11:20:26.682Z] No job functions found.
     ```
 
     > ⚠️ If you get a firewall notification, grant access as the `func` application needs to be able to read and write to your network.
@@ -220,26 +221,27 @@ You are now ready to create the event trigger code.
 
     ```output
     ...soil-moisture-trigger$ func start
-    Found Python version 3.9.1 (python3).
-    
+    Resolving worker runtime to 'python'.
+    Found Python version 3.12.3 (python3).
+
     Azure Functions Core Tools
-    Core Tools Version:       3.0.3442 Commit hash: 6bfab24b2743f8421475d996402c398d2fe4a9e0  (64-bit)
-    Function Runtime Version: 3.0.15417.0
-    
+    Core Tools Version:       4.5.0+e74aae22c9630777c9f58354f290a6e214218546 (64-bit)
+    Function Runtime Version: 4.1044.400.25520
+
+    [2025-12-16T11:20:26.682Z] Worker process started and initialized.
+
     Functions:
-    
-            iot-hub-trigger: eventHubTrigger
-    
+
+	    process_event: eventHubTrigger
+
     For detailed output, run func with --verbose flag.
-    [2021-05-05T02:44:07.517Z] Worker process started and initialized.
-    [2021-05-05T02:44:09.202Z] Executing 'Functions.iot-hub-trigger' (Reason='(null)', Id=802803a5-eae9-4401-a1f4-176631456ce4)
-    [2021-05-05T02:44:09.205Z] Trigger Details: PartitionId: 0, Offset: 1011240-1011632, EnqueueTimeUtc: 2021-05-04T19:04:04.2030000Z-2021-05-04T19:04:04.3900000Z, SequenceNumber: 2546-2547, Count: 2
-    [2021-05-05T02:44:09.352Z] Python EventHub trigger processed an event: {"soil_moisture":3342}
-    [2021-05-05T02:44:09.354Z] Python EventHub trigger processed an event: {"soil_moisture":3319}
-    [2021-05-05T02:44:09.395Z] Executed 'Functions.iot-hub-trigger' (Succeeded, Id=802803a5-eae9-4401-a1f4-176631456ce4, Duration=245ms)
+    [2025-12-16T11:20:28.334Z] Executing 'Functions.process_event' (Reason='(null)', Id=f672f44e-3d6b-4ffe-8933-1dd47778b899)
+    [2025-12-16T11:20:28.334Z] Trigger Details: PartitionId: 0, OffsetString: 0, EnqueueTimeUtc: 2025-12-16T11:02:32.0580000+00:00, SequenceNumber: 0, Count: 1, Offset: 0, PartionId: 0
+    [2025-12-16T11:20:28.392Z] Python EventHub trigger processed an event: "{\"soil_moisture\": 21}"
+    [2025-12-16T11:20:28.407Z] Executed 'Functions.process_event' (Succeeded, Id=f672f44e-3d6b-4ffe-8933-1dd47778b899, Duration=96ms)
     ```
 
-    Each call to the function will be surrounded by a `Executing 'Functions.iot-hub-trigger'`/`Executed 'Functions.iot-hub-trigger'` block in the output, so you can how many messages were processed in each function call.
+    Each call to the function will be surrounded by a `Executing 'Functions.process_event'`/`Executed 'Functions..process_event'` block in the output, so you can how many messages were processed in each function call.
 
 1. Make sure your IoT device is running, You will see new soil moisture messages appearing in the Functions app.
 
