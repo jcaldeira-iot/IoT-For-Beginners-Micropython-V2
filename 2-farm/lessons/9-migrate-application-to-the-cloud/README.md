@@ -103,32 +103,23 @@ One great feature of Azure Functions is that you can run them locally. The same 
 
 The Azure Functions tooling is available as a CLI, known as the Azure Functions Core Tools.
 
-The Azure Functions CLI can be used to create a new Functions app.
-
-1. Create a folder for your Functions app and navigate to it. Call it `soil-moisture-trigger`
-
-    ```sh
-    mkdir soil-moisture-trigger
-    cd soil-moisture-trigger
-    ```
-
-1. Run the following command to create a Functions app in this folder:
+1. Run the following command in a terminal to create a Functions app folder and all the corresponding files:
 
     ```sh
     func init soil-moisture-trigger --python --model V2
     ```
 
-    This will create three files inside the current folder:
+    This will create four files inside the `soil-moisture-trigger` folder:
 
     * `host.json` - this JSON document contains settings for your Functions app. You won't need to modify these settings.
     * `local.settings.json` - this JSON document contains settings your app would use when running locally, such as connection strings for your IoT Hub. These settings are local only, and should not be added to source code control. When you deploy the app to the cloud, these settings are not deployed, instead your settings are loaded from application settings. This will be covered later in this lesson.
     * `requirements.txt` - this is a [Pip requirements file](https://pip.pypa.io/en/stable/user_guide/#requirements-files) that contains the Pip packages needed to run your Functions app.
     * `function_app.py` - this is the Python code file that will contain the trigger.
 
-1. The `local.settings.json` file has a setting for the storage account that the Functions app will use. This defaults to an empty setting, so needs to be set. To connect to the Azurite local storage emulator, set this value to the following:
+1. In the terminal, navigate to the newly created `soil-moisture-trigger` folder:
 
-    ```json
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    ```sh
+    cd soil-moisture-trigger
     ```
 
 1. Install the necessary Pip packages using the requirements file:
@@ -160,41 +151,7 @@ The Azure Functions CLI can be used to create a new Functions app.
 
     > ⚠️ If you get a firewall notification, grant access as the `func` application needs to be able to read and write to your network.
 
-    > ⚠️ If you are using macOS, there may be warnings in the output:
-    >
-    > ```output
-    > ...soil-moisture-trigger$ func start
-    > Found Python version 3.9.1 (python3).
-    >
-    > Azure Functions Core Tools
-    > Core Tools Version:       3.0.3442 Commit hash: 6bfab24b2743f8421475d996402c398d2fe4a9e0  (64-bit)
-    > Function Runtime Version: 3.0.15417.0
-    >
-    > [2021-06-16T08:18:28.315Z] Cannot create directory for shared memory usage: /dev/shm/AzureFunctions
-    > [2021-06-16T08:18:28.316Z] System.IO.FileSystem: Access to the path '/dev/shm/AzureFunctions' is denied. Operation not permitted.
-    > [2021-06-16T08:18:30.361Z] No job functions found.
-    > ```
-    >
-    > You can ignore these as long as the Functions app starts correctly and lists the running functions. As mentioned in [this question on the Microsoft Docs Q&A](https://docs.microsoft.com/answers/questions/396617/azure-functions-core-tools-error-osx-devshmazurefu.html?WT.mc_id=academic-17441-jabenn) it can be ignored.
-
 1. Stop the Functions app by pressing `ctrl+c`.
-
-1. Open the current folder in VS Code, either by opening VS Code, then opening this folder, or by running the following:
-
-    ```sh
-    code .
-    ```
-
-    VS Code will detect your Functions project and show a notification saying:
-
-    ```output
-    Detected an Azure Functions Project in folder "soil-moisture-trigger" that may have been created outside of
-    VS Code. Initialize for optimal use with VS Code?
-    ```
-
-    ![The notification](../../../images/vscode-azure-functions-init-notification.png)
-
-    Select **Yes** from this notification.
 
 ## Create an IoT Hub event trigger
 
@@ -212,7 +169,7 @@ Once your trigger has connected, the code inside the function will be called for
 
 ### Task - get the Event Hub compatible endpoint connection string
 
-1. From the VS Code terminal run the following command to get the connection string for the IoT Hubs Event Hub compatible endpoint:
+1. From the terminal run the following command to get the connection string for the IoT Hubs Event Hub compatible endpoint:
 
     ```sh
     az iot hub connection-string show --default-eventhub \
@@ -222,7 +179,7 @@ Once your trigger has connected, the code inside the function will be called for
 
     Replace `<hub_name>` with the name you used for your IoT Hub.
 
-1. In VS Code, open the `local.settings.json` file. Add the following additional value inside the `Values` section:
+1. Using any text editor open the `local.settings.json` file. Add the following additional value inside the `Values` section:
 
     ```json
     "IOT_HUB_CONNECTION_STRING": "<connection string>"
@@ -232,78 +189,19 @@ Once your trigger has connected, the code inside the function will be called for
 
 ### Task - create an event trigger
 
-You are now ready to create the event trigger.
+You are now ready to create the event trigger code.
 
-1. From the VS Code terminal run the following command from inside the `soil-moisture-trigger` folder:
-
-    ```sh
-    func new --name iot-hub-trigger --template "Azure Event Hub trigger"
-    ```
-
-    This creates a new Function called `iot-hub-trigger`. The trigger will connect to the Event Hub compatible endpoint on the IoT Hub, so you can use an event hub trigger. There is no specific IoT Hub trigger.
-
-This will create a folder inside the `soil-moisture-trigger` folder called `iot-hub-trigger` that contains this function. This folder will have the following files inside it:
-
-* `__init__.py` - this is the Python code file that contains the trigger, using the standard Python file name convention to turn this folder into a Python module.
-    The core of the trigger is the `main` function. It is this function that is called with the events from the IoT Hub. This function has a parameter called `event` that contains an `EventHubEvent`. Every time a message is sent to IoT Hub, this function is called passing that message as the `event`, along with properties that are the same as the annotations you saw in the last lesson. The core of this function logs the event.
-
-* `function.json` - this contains configuration for the trigger. The main configuration is in a section called `bindings`. A binding is the term for a connection between Azure Functions and other Azure services. This function has an input binding to an event hub - it connects to an event hub and receives data.
-
-    > 💁 You can also have output bindings so that the output of a function is sent to another service. For example you could add an output binding to a database and return the IoT Hub event from the function, and it will automatically be inserted into the database.
-
-    ✅ Do some research: Read up on bindings in the [Azure Functions triggers and bindings concepts documentation](https://docs.microsoft.com/azure/azure-functions/functions-triggers-bindings?WT.mc_id=academic-17441-jabenn&tabs=python).
-
-    The `bindings` section includes configuration for the binding. The values of interest are:
-
-  * `"type": "eventHubTrigger"` - this tells the function it needs to listen to events from an Event Hub
-  * `"name": "events"` - this is the parameter name to use for the Event Hub events. This matches the parameter name in the `main` function in the Python code.
-  * `"direction": "in"` - this is an input binding, the data from the event hub comes into the function
-  * `"connection": ""` - this defines the name of the setting to read the connection string from. When running locally, this will read this setting from the `local.settings.json` file.
-
-    > 💁 The connection string cannot be stored in the `function.json` file, it has to be read from the settings. This is to stop you accidentally exposing your connection string.
-
-1. Replace the contents of `__init__.py` by the following code:
+1. Using any text editor open the `function_app.py` file and add the following code after `app = func.FunctionApp()` instruction:
 
     ```python
-    import logging
-
-    import azure.functions as func
-
-
-    def main(event: func.EventHubEvent):
+    @app.event_hub_message_trigger(
+        arg_name="event",
+        event_hub_name="",
+        connection="IOT_HUB_CONNECTION_STRING"
+    )
+    def process_event(event: func.EventHubEvent):
         logging.info('Python EventHub trigger processed an event: %s',
                     event.get_body().decode('utf-8'))
-    ```
-
-1. Due to [a bug in the Azure Functions template](https://github.com/Azure/azure-functions-templates/issues/1250), the `function.json` has an incorrect value for the `cardinality` field. Update this field from `many` to `one`:
-
-    ```json
-    "cardinality": "one",
-    ```
-
-1. Update the value of `"connection"` in the `function.json` file to point to the new value you added to the `local.settings.json` file:
-
-    ```json
-    "connection": "IOT_HUB_CONNECTION_STRING",
-    ```
-
-    > 💁 **Remember - this needs to point to the setting, not contain the actual connection string.**
-
-1. The connection string contains the `"eventHubName"` value, so the value for this in the `function.json` file needs to be cleared. Update this value to an empty string:
-
-    ```json
-    "eventHubName": "",
-    ```
-1. Update the value of `"name"` in the `function.json` file:
-
-    ```json
-    "name": "event",
-    ```
-
-1. Update the `"version"` value of `"extensionBundle"` in the `host.json` file:
-
-    ```json
-    "version": "[2.*, 3.0.0)"
     ```
 
 ### Task - run the event trigger
@@ -312,7 +210,7 @@ This will create a folder inside the `soil-moisture-trigger` folder called `iot-
 
     > 💁 Multiple apps can connect to the IoT Hub endpoints using different *consumer groups*. These are covered in a later lesson.
 
-1. To run the Functions app, run the following command from the VS Code terminal
+1. To run the Functions app, run the following command from the terminal
 
     ```sh
     func start
@@ -347,33 +245,6 @@ This will create a folder inside the `soil-moisture-trigger` folder called `iot-
 
 1. Stop and restart the Functions app. You will see that it won't process previous messages again, it will only process new messages.
 
-> 💁 VS Code also supports debugging your Functions. You can set break points by clicking on the border by the start of each line of code, or putting the cursor on a line of code and selecting *Run -> Toggle breakpoint*, or pressing `F9`. You can launch the debugger by selecting *Run -> Start debugging*, pressing `F5`, or selecting the *Run and debug* pane and selecting the **Start debugging** button. By doing this you can see the details of the events being processed.
-
-#### Troubleshooting
-
-* If you get the following error:
-
-    ```output
-    The listener for function 'Functions.iot-hub-trigger' was unable to start. Microsoft.WindowsAzure.Storage: Connection refused. System.Net.Http: Connection refused. System.Private.CoreLib: Connection refused.
-    ```
-
-    Check Azurite is running and you have set the `AzureWebJobsStorage` in the `local.settings.json` file to `UseDevelopmentStorage=true`.
-
-* If you get the following error:
-
-    ```output
-    System.Private.CoreLib: Exception while executing function: Functions.iot-hub-trigger. System.Private.CoreLib: Result: Failure Exception: AttributeError: 'list' object has no attribute 'get_body'
-    ```
-
-    Check that you have set the `cardinality` in the `function.json` file to `one`.
-
-* If you get the following error:
-
-    ```output
-    Azure.Messaging.EventHubs: The path to an Event Hub may be specified as part of the connection string or as a separate value, but not both.  Please verify that your connection string does not have the `EntityPath` token if you are passing an explicit Event Hub name. (Parameter 'connectionString').
-    ```
-
-    Check that you have set the `eventHubName` in the `function.json` file to  an empty string.
 
 ## Send direct method requests from serverless code
 
@@ -383,7 +254,7 @@ To connect to the Registry Manager, you need a connection string.
 
 ### Task - get the Registry Manager connection string
 
-1. To get the connection string, run the following command:
+1. To get the connection string, run the following command on the terminal:
 
     ```sh
     az iot hub connection-string show --policy-name service \
@@ -397,7 +268,7 @@ To connect to the Registry Manager, you need a connection string.
 
     ✅ Do some research: Read up on the different policies in the [IoT Hub permissions documentation](https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-security#iot-hub-permissions?WT.mc_id=academic-17441-jabenn)
 
-1. In VS Code, open the `local.settings.json` file. Add the following additional value inside the `Values` section:
+1. Using any text editor open the `local.settings.json` file. Add the following additional value inside the `Values` section:
 
     ```json
     "REGISTRY_MANAGER_CONNECTION_STRING": "<connection string>"
@@ -413,13 +284,13 @@ To connect to the Registry Manager, you need a connection string.
     azure-iot-hub
     ```
 
-1. Run the following command to install the new Pip packages:
+1. Run the following command on the terminal to install the new Pip packages:
 
     ```sh
     pip3 install -r requirements.txt
     ```
 
-1. Add the following imports to the `__init__.py` file:
+1. Add the following imports to the `function_app.py` file:
 
     ```python
     import json
@@ -430,9 +301,9 @@ To connect to the Registry Manager, you need a connection string.
 
     This imports some system libraries, as well as the libraries to interact with the Registry Manager and send direct method requests.
 
-1. Remove the code from inside the `main` method, but keep the method itself.
+1. Remove the code from inside the `process_event` method, but keep the method itself.
 
-1. In the `main` method, add the following code:
+1. Inside the `process_event` method, add the following code:
 
     ```python
     body = json.loads(json.loads(event.get_body().decode('utf-8')))
@@ -499,7 +370,7 @@ Your code is now working locally, so the next step is to deploy the Functions Ap
 
 Your Functions app needs to be deployed to a Functions App resource in Azure, living inside the Resource Group you created for your IoT Hub. You will also need a Storage Account created in Azure to replace the emulated one you have running locally.
 
-1. Run the following command to create a storage account:
+1. Run the following command on the terminal to create a storage account:
 
     ```sh
     az storage account create --resource-group soil-moisture-sensor \
@@ -563,7 +434,7 @@ When you run these commands, they will also output a list of all the Application
 
 Now that the Functions App is ready, your code can be deployed.
 
-1. Run the following command from the VS Code terminal to publish your Functions App:
+1. Inside the funciton folder run the following command from the terminal to publish your Functions App:
 
     ```sh
     func azure functionapp publish <functions_app_name>
