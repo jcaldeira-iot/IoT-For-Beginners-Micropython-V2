@@ -144,7 +144,7 @@ The cloud services available in Azure can be configured through a web-based port
 
     A web page will be launched in your default browser. Log in using the account you used to sign up for your Azure subscription. Once you are logged in, you can close the browser tab.
 
-1. If you have multiple Azure subscriptions, such as a school provided one, and your own Azure for Students subscription, you will need to select the one you want to use. Run the following command to list all the subscriptions you have access to:
+1. If you have multiple Azure subscriptions, such as a school provided one, and your own Azure for Students subscription, you will need to select the one you want to use. Run the following command in the terminal to list all the subscriptions you have access to:
 
     ```sh
     az account list --output table
@@ -160,7 +160,7 @@ The cloud services available in Azure can be configured through a web-based port
     Azure for Students      AzureCloud   fa51c31b-162c-4599-add6-781def2e1fbf  Enabled  False
     ```
 
-    To select the subscription you want to use, use the following command:
+    To select the subscription you want to use, use the following command in the terminal:
 
     ```sh
     az account set --subscription <SubscriptionId>
@@ -174,7 +174,7 @@ Azure services, such as IoT Hub instances, virtual machines, databases, or AI se
 
 > 💁 Using resource groups means you can manage multiple services at once. For example, once you have finished all the lessons for this project you can delete the resource group, and all the resources in it will be deleted automatically.
 
-1. There are multiple Azure data centers around the world, divided up into regions. When you create an Azure resource or resource group, you have to specify where you want it created. Run the following command to get the list of locations:
+1. There are multiple Azure data centers around the world, divided up into regions. When you create an Azure resource or resource group, you have to specify where you want it created. Run the following command in the terminal to get the list of locations:
 
     ```sh
     az account list-locations --output table
@@ -203,7 +203,15 @@ Azure services, such as IoT Hub instances, virtual machines, databases, or AI se
              → allowedLocations (Parameter ID) → {…} (Parameter value)
    ```
 
-1. Run the following command to create a resource group called `soil-moisture-sensor`. Resource group names have to be unique in your subscription.
+1. After identifying your allowed regions, run the following command in the terminal and choose a location from the list that matches one of the regions in your allowed set.
+
+    ```sh
+    az functionapp list-flexconsumption-locations
+    ```   
+
+     > 💁 Some resources are only available in specific regions. In the next lesson, we will need to create a resource that is available only in the regions listed above. Since all resources needed for the project must be created in the same region, it is important to ensure from the beginning that the selected region supports the creation of all the required resources.
+
+1. Run the following command in the terminal to create a resource group called `soil-moisture-sensor`. Resource group names have to be unique in your subscription.
 
     ```sh
     az group create --name soil-moisture-sensor \
@@ -216,7 +224,7 @@ Azure services, such as IoT Hub instances, virtual machines, databases, or AI se
 
 You can now create an IoT Hub resource in your resource group.
 
-1. Use the following command to create your IoT hub resource:
+1. Use the following command in the terminal to create your IoT hub resource:
 
     ```sh
     az iot hub create --resource-group soil-moisture-sensor \
@@ -271,7 +279,7 @@ Once the hub is created, your IoT device can connect to it. Only registered devi
 
 The IoT device can be registered with your IoT Hub using the Azure CLI.
 
-1. Run the following command to register a device:
+1. Run the following command in the terminal to register a device:
 
     ```sh
     az iot hub device-identity create --device-id soil-moisture-sensor \
@@ -282,7 +290,7 @@ The IoT device can be registered with your IoT Hub using the Azure CLI.
 
     This will create a device with an ID of `soil-moisture-sensor`.
 
-1. When your IoT device connects to your IoT Hub using the micropython SDK, it needs to use a SAS token as a connection string. Run the following command to generate a SAS token for a target IoT Hub device:
+1. When your IoT device connects to your IoT Hub using the micropython SDK, it needs to use a SAS token as a connection string. Run the following command in the terminal to generate a SAS token for a target IoT Hub device:
 
     ```sh
     az iot hub generate-sas-token --device-id soil-moisture-sensor \
@@ -306,7 +314,7 @@ For now, you won't be updating your server code. Instead you can use the Azure C
 
 1. Make sure your IoT device is running and sending soil moisture telemetry values
 
-1. Run the following command in your command prompt or terminal to monitor messages sent to your IoT Hub:
+1. Run the following command in the terminal to monitor messages sent to your IoT Hub:
 
     ```sh
     az iot hub monitor-events --hub-name <hub_name>
@@ -342,7 +350,7 @@ For now, you won't be updating your server code. Instead you can use the Azure C
 
     > At the time of writing, the `az iot` extension is not fully working on Apple Silicon. If you are using an Apple Silicon device, you will need to monitor the messages a different way, such as using the [Azure IoT Tools for Visual Studio Code](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-vscode-iot-toolkit-cloud-device-messaging).
 
-1. These messages have a number of properties attached to them automatically, such as the timestamp they were sent. These are known as *annotations*. To view all the message annotations, use the following command:
+1. These messages have a number of properties attached to them automatically, such as the timestamp they were sent. These are known as *annotations*. To view all the message annotations, use the following command in the terminal:
 
     ```sh
     az iot hub monitor-events --properties anno --hub-name <hub_name>
@@ -384,7 +392,7 @@ For now, you won't be updating your server code. Instead you can use the Azure C
 
 You can also use the Azure CLI to call direct methods on your IoT device.
 
-1. Run the following command in your command prompt or terminal to invoke the `relay_on` method on the IoT device:
+1. Run the following command in the terminal to invoke the `relay_on` method on the IoT device:
 
     ```sh
     az iot hub invoke-device-method --device-id soil-moisture-sensor \
