@@ -203,7 +203,7 @@ Azure services, such as IoT Hub instances, virtual machines, databases, or AI se
              → allowedLocations (Parameter ID) → {…} (Parameter value)
    ```
 
-   ![Location1](../../../images/location1.png)    ![Location2](../../../images/location2.png)
+   ![Locations1](../../../images/locations1.png)    ![Locations2](../../../images/locations2.png)
 
 
 1. After identifying your allowed regions, run the following command in the terminal and choose a location from the list that matches one of the regions in your allowed set.
