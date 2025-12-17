@@ -199,8 +199,9 @@ Azure services, such as IoT Hub instances, virtual machines, databases, or AI se
 1. Due to Microsoft restrictions, new Azure for Students subscriptions only allow the use of a limited set of regions per account. Before proceeding, determine the set of regions available to your subscription through the Azure portal at [portal.azure.com](https://portal.azure.com). After accessing the portal, search for the `Policy` service and follow this path:
 
    ```output
-    Authoring → Assignments → Allowed resource deployment regions (Assignment name) → allowedLocations (Parameter ID) → {…} (Parameter value)
-    ```
+   Authoring → Assignments → Allowed resource deployment regions (Assignment name)
+             → allowedLocations (Parameter ID) → {…} (Parameter value)
+   ```
 
 1. Run the following command to create a resource group called `soil-moisture-sensor`. Resource group names have to be unique in your subscription.
 
