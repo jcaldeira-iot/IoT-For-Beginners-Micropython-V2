@@ -391,8 +391,7 @@ Your Functions app needs to be deployed to a Functions App resource in Azure, li
     az functionapp create --resource-group soil-moisture-sensor \
                           --runtime python \
                           --functions-version 4 \
-                          --os-type Linux \
-                          --consumption-plan-location <location> \
+                          --flexconsumption-location <location> \
                           --storage-account <storage_name> \
                           --name <functions_app_name>
     ```
@@ -404,8 +403,6 @@ Your Functions app needs to be deployed to a Functions App resource in Azure, li
     Replace `<functions_app_name>` with a unique name for your Functions App. This will need to be globally unique as it forms part of a URL that can be used to access the Functions App. Use something like `soil-moisture-sensor-` and add a unique identifier on the end, like some random words or your name.
 
     The `--functions-version 4` option sets the version of Azure Functions to use.
-
-    The `--os-type Linux` tells the Functions runtime to use Linux as the OS to host these functions. Functions can be hosted on Linux or Windows, depending on the programming language used. Python apps are only supported on Linux.
 
 ### Task - upload your application settings
 
@@ -446,9 +443,11 @@ Now that the Functions App is ready, your code can be deployed.
 The code will be packaged up and sent to the Functions App, where it will be deployed and started. There will be a lot of console output, ending in confirmation of the deployment and a list of the functions deployed. In this case the list will only contain the trigger.
 
 ```output
-Deployment successful.
-Remote build succeeded!
-Syncing triggers...
+Deployment in progress, please wait...
+Starting deployment pipeline.
+(...)
+Finished deployment pipeline.
+The deployment was successful!
 Functions in soil-moisture-sensor:
     process_event - [eventHubTrigger]
 ```
