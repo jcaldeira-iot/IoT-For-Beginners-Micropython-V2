@@ -450,7 +450,7 @@ Deployment successful.
 Remote build succeeded!
 Syncing triggers...
 Functions in soil-moisture-sensor:
-    iot-hub-trigger - [eventHubTrigger]
+    process_event - [eventHubTrigger]
 ```
 
 Make sure your IoT device is running. Change the moisture levels by adjusting the soil moisture, or moving the sensor in and out of the soil. You will see the relay turn on and off as the soil moisture changes.
