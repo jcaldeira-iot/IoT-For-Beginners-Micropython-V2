@@ -11,7 +11,7 @@ In Azure, you can create a virtual machine - a computer in the cloud that you ca
     ```sh
     az deployment group create \
                 --resource-group fruit-quality-detector \
-                --template-uri https://raw.githubusercontent.com/Azure/iotedge-vm-deploy/1.2.0/edgeDeploy.json \
+                --template-uri https://raw.githubusercontent.com/jcaldeira-iot/IoT-For-Beginners-Micropython-V2/refs/heads/main/4-manufacturing/lessons/15-run-fruit-detector-edge/VM-template/edgeDeploy.json \
                 --parameters dnsLabelPrefix=<vm_name> \
                 --parameters adminUsername=<username> \
                 --parameters deviceConnectionString="<connection_string>" \
@@ -25,7 +25,7 @@ In Azure, you can create a virtual machine - a computer in the cloud that you ca
 
     Replace `<connection_string>` with the connection string of your `fruit-quality-detector-edge` IoT Edge device.
 
-    This will create a VM configured as a `DS1 v2` virtual machine. These categories indicate how powerful the machine is, and therefor how much it costs. This VM has 1 CPU and 3.5GB of RAM.
+    This will create a VM configured as a `B2ats v2` virtual machine. These categories indicate how powerful the machine is, and therefor how much it costs. This VM has 2 CPU and 1GB of RAM.
 
     > 💰 You can see the current pricing of these VMs on the [Azure Virtual Machine pricing guide](https://azure.microsoft.com/pricing/details/virtual-machines/linux/?WT.mc_id=academic-17441-jabenn)
 
@@ -41,7 +41,7 @@ In Azure, you can create a virtual machine - a computer in the cloud that you ca
 
     Take a copy of either the `PublicIps` field, or the `Fqdns` field.
 
-1. VMs cost money. At the time of writing, a DS1 VM costs about $0.06 per hour. To keep costs down, you should shut down the VM when you are not using it, and delete it when you are finished with this project.
+1. VMs cost money. To keep costs down, you should shut down the VM when you are not using it, and delete it when you are finished with this project.
 
     You can configure your VM to automatically shut down at a certain time each day. This means if you forget to shut it down, you won't be billed for more than the time till the automatic shutdown. Use the following command to set this:
 
