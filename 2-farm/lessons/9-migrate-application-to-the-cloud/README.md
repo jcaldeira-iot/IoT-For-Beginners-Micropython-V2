@@ -82,13 +82,13 @@ When you deploy your Azure Functions app to the cloud, it needs to use a small a
 1. Run Azurite, passing it this new folder:
 
     ```sh
-    azurite --location azurite
+    azurite --location azurite --skipApiVersionCheck
     ```
 
     The Azurite storage emulator will launch and be ready for the local Functions runtime to connect.
 
     ```output
-    ➜  ~ azurite --location azurite  
+    ➜  ~ azurite --location azurite --skipApiVersionCheck 
     Azurite Blob service is starting at http://127.0.0.1:10000
     Azurite Blob service is successfully listening at http://127.0.0.1:10000
     Azurite Queue service is starting at http://127.0.0.1:10001
