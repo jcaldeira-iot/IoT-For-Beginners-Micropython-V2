@@ -390,6 +390,7 @@ Your Functions app needs to be deployed to a Functions App resource in Azure, li
     ```sh
     az functionapp create --resource-group soil-moisture-sensor \
                           --runtime python \
+                          --runtime-version 3.12 \
                           --functions-version 4 \
                           --flexconsumption-location <location> \
                           --storage-account <storage_name> \
