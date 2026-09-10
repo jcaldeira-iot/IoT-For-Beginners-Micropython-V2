@@ -21,7 +21,7 @@ except:
 from ioth import IoTHClient
 
 iot_hub = '<hub_name>.azure-devices.net'
-device_id = 'soil-moisture-sensor'
+device_id = 'gps-sensor'
 sas_token = '<sas_token>'
 
 device_client = IoTHClient(iot_hub, device_id, sas_token)
