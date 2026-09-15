@@ -150,23 +150,9 @@ One of the powerful features of Python is the ability to install [pip packages](
 
 The server code can now be written in Python.
 
-1. From your terminal or command line, run the following to create a Python file called `app.py`:
+1. Open any text editor and create a Python file called `app.py`:
 
-    ```cmd
-    touch app.py
-    ```
-
-1. Open the current folder in VS Code:
-
-    ```sh
-    code .
-    ```
-    
-1. Launch a new VS Code Terminal by selecting *Terminal -> New Terminal, or pressing `` CTRL+` ``.
-
-    ![VS Code Kill the active terminal instance button](../../../images/vscode-kill-terminal.png)
-
-1. Open the `app.py` file from the VS Code explorer and add the following code:
+1. Add the following code to the created file:
 
     ```python
     import json
@@ -207,13 +193,13 @@ The server code can now be written in Python.
 
     Finally an infinite loop keeps the application running. The MQTT client is listening to messages on a background thread and runs all the time the main application is running.
 
-1. From the VS Code terminal, run the following to run your Python app:
+1. From the terminal or command line, run the following command to start your server (the Python file named `app.py`):
 
     ```sh
     python3 app.py
     ```
 
-    The app will start listening to messages from the IoT device.
+    The server will start listening to messages from the IoT device.
 
 1. Make sure your device is running and sending telemetry messages. Adjust the light levels detected by your physical or virtual device. Messages being received will be printed to the terminal.
 
@@ -222,8 +208,6 @@ The server code can now be written in Python.
     Message received: {'light': 1040}
     Message received: {'light': 3210}
     ```
-
-    The app.py file in the nightlight virtual environment has to be running for the app.py file in the nightlight-server virtual environment to receive the messages being sent.
 
 > 💁 You can find this code in the [code-server/server](code-server/server) folder.
 
@@ -263,7 +247,7 @@ A thermostat could receive a command from the cloud to turn the heating on. Base
 
 The next step for our Internet controlled nightlight is for the server code to send a command back to the IoT device to control the light based on the light levels it senses.
 
-1. Open the server code in VS Code
+1. Open the server file in the text editor
 
 1. Add the following line after the declaration of the `client_telemetry_topic` to define which topic to send commands to:
 
