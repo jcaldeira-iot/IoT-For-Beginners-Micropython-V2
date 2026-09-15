@@ -109,8 +109,6 @@ Work through the relevant guide to set your device up and complete a 'Hello Worl
 
 * **[Microcontroller ESP32](esp32.md) <<<<----------**
 
-✅ You will be using VS Code for some tasks. If you haven't used this before, read more about it on the [VS Code site](https://code.visualstudio.com?WT.mc_id=academic-17441-jabenn)
-
 ## Applications of IoT
 
 IoT covers a huge range of use cases, across a few broad groups:
