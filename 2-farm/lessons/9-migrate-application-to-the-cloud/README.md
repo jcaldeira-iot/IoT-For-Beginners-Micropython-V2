@@ -371,6 +371,12 @@ Your code is now working locally, so the next step is to deploy the Functions Ap
 
 Your Functions app needs to be deployed to a Functions App resource in Azure, living inside the Resource Group you created for your IoT Hub. You will also need a Storage Account created in Azure to replace the emulated one you have running locally.
 
+1. Run the following command in the terminal to update the `azure-cli` package:
+
+    ```sh
+    pip3 install azure-cli 
+    ```
+
 1. Run the following command on the terminal to create a storage account:
 
     ```sh
