@@ -55,7 +55,7 @@ Program the ESP32.
     adc = ADC(7, atten=ADC.ATTN_11DB)
     ```
 
-    The line `adc = ADC(7, atten=ADC.ATTN_0DB)` creates an instance of the `ADC` class connecting to pin **ADC1_6** - the analog pin that the soil moisture sensor is connected to. **The pin numbers used in the code correspond to the GPIO pinout mapping of the ESP32.** The parameter `atten=ADC.ATTN_11DB` sets the attenuation level to adjust the voltage range, ensuring that the measured values are properly scaled according to the electronic circuit.
+    The line `adc = ADC(7, atten=ADC.ATTN_11DB)` creates an instance of the `ADC` class connecting to pin **ADC1_6** - the analog pin that the soil moisture sensor is connected to. **The pin numbers used in the code correspond to the GPIO pinout mapping of the ESP32.** The parameter `atten=ADC.ATTN_11DB` sets the attenuation level to adjust the voltage range, ensuring that the measured values are properly scaled according to the electronic circuit.
 
 1. Add an infinite loop that reads from this ADC on the pin, and write the result to the console. This loop can then sleep for 1 seconds between reads.
 
