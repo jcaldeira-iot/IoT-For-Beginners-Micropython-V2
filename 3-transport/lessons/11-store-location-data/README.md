@@ -224,6 +224,12 @@ The data will be saved as a JSON blob with the following format:
 
 ### Task - connect your serverless code to storage
 
+1. Run the following command in the terminal to update the `azure-cli` package:
+
+    ```sh
+    pip3 install azure-cli 
+    ```
+
 1. Create an Azure Storage account:
 
     ```sh
