@@ -150,7 +150,7 @@ Now you can take the next step which is to display your map on a web page. We wi
     </script>
     ```
 
-    If you open your `index.html` page in a web browser, you should see a map loaded, and focused on the `center` coordinates.
+1. If you open your `index.html` page in a web browser, you should see a map loaded, and focused on the `center` coordinates.
 
     ![A map showing Seattle, a city in Washington State, USA](../../../images/map-image.png)
 
