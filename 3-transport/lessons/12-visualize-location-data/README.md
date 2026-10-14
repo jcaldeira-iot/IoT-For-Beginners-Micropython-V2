@@ -4,21 +4,15 @@
 
 > Sketchnote by [Nitya Narasimhan](https://github.com/nitya). Click the image for a larger version.
 
-This video gives an overview of Azure Maps with IoT, a service that will be covered in this lesson.
-
-[![Azure Maps - The Microsoft Azure Enterprise Location Platform](https://img.youtube.com/vi/P5i2GFTtb2s/0.jpg)](https://www.youtube.com/watch?v=P5i2GFTtb2s)
-
-> 🎥 Click the image above to watch the video
-
 ## Introduction
 
-In the last lesson you learned how to get GPS data from your sensors to save to the cloud in a storage container using serverless code. Now you will discover how to visualize those points on an Azure map. You will learn how to create a map on a web page, learn about the GeoJSON data format and how to use it to plot all the captured GPS points on your map.
+In the last lesson you learned how to get GPS data from your sensors to save to the cloud in a storage container using serverless code. Now you will discover how to visualize those points on a map. You will learn how to create a map on a web page using the open source Leaflet library and OpenStreetMap tiles, learn about the GeoJSON data format and how to use it to plot all the captured GPS points on your map.
 
 In this lesson we'll cover:
 
 * [What is data visualization](#what-is-data-visualization)
 * [Map services](#map-services)
-* [Create an Azure Maps resource](#create-an-azure-maps-resource)
+* [Set up Leaflet and OpenStreetMap](#set-up-leaflet-and-openstreetmap)
 * [Show a map on a web page](#show-a-map-on-a-web-page)
 * [The GeoJSON format](#the-geojson-format)
 * [Plot GPS data on a Map using GeoJSON](#plot-gps-data-on-a-map-using-geojson)
@@ -78,49 +72,30 @@ When working with GPS data, the clearest visualization can be to plot the data o
 
 ## Map services
 
-Working with maps is an interesting exercise, and there are many to choose from such as Bing Maps, Leaflet, Open Street Maps, and Google Maps. In this lesson, you will learn about [Azure Maps](https://azure.microsoft.com/services/azure-maps/?WT.mc_id=academic-17441-jabenn) and how they can display your GPS data.
+Working with maps is an interesting exercise, and there are many to choose from such as Bing Maps, Azure Maps, Leaflet, OpenStreetMap, and Google Maps. In this lesson, you will learn about [Leaflet](https://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org) and how they can display your GPS data.
 
-![The Azure Maps logo](../../../images/azure-maps-logo.png)
+**OpenStreetMap** is a free, community-built map of the world. Its map images (called *tiles*) can be loaded without an account or an API key. **Leaflet** is a lightweight, open source JavaScript library that downloads those tiles, draws them on a web page and lets you add markers, lines, polygons and more on top.
 
-Azure Maps is "a collection of geospatial services and SDKs that use fresh mapping data to provide geographic context to web and mobile applications." Developers are provided with tools to create beautiful, interactive maps that can do things like provide recommended traffic routes, give information about traffic incidents, indoor navigation, search capabilities, elevation information, weather services and more.
+> 💁 Both these tools are free and need no subscription. Azure Maps is a good alternative for production solutions that need features such as traffic, routing and search with an SLA. The GeoJSON you create in this lesson works with both.
 
-✅ Experiment with some [mapping code samples](https://docs.microsoft.com/samples/browse?WT.mc_id=academic-17441-jabenn&products=azure-maps)
+You can control the behavior and look of your maps by enabling various controls to allow the map to react to events like pinch, drag, and click. To control the look of your map, you can add layers that include markers, lines, polygons, and more.
 
-You can display the maps as a blank canvas, tiles, satellite images, satellite images with roads superimposed, various types of grayscale maps, maps with shaded relief to show elevation, night view maps, and a high contrast map. You can get real-time updates on your maps by integrating them with [Azure Event Grid](https://azure.microsoft.com/services/event-grid/?WT.mc_id=academic-17441-jabenn). You can control the behavior and look of your maps by enabling various controls to allow the map to react to events like pinch, drag, and click. To control the look of your map, you can add layers that include bubbles, lines, polygons, heat maps, and more. Which style of map you implement depends on your choice of SDK.
+In this lesson, you will use Leaflet to draw a map and display your sensor's GPS location's path.
 
-You can access Azure Maps APIs by leveraging its [REST API](https://docs.microsoft.com/javascript/api/azure-maps-rest/?WT.mc_id=academic-17441-jabenn&view=azure-maps-typescript-latest), its [Web SDK](https://docs.microsoft.com/azure/azure-maps/how-to-use-map-control?WT.mc_id=academic-17441-jabenn), or, if you are building a mobile app, its [Android SDK](https://docs.microsoft.com/azure/azure-maps/how-to-use-android-map-control-library?WT.mc_id=academic-17441-jabenn&pivots=programming-language-java-android).
+> ⚠️ OpenStreetMap tiles are free for light use, such as development and teaching. The [tile usage policy](https://operations.osmfoundation.org/policies/tiles/) forbids heavy traffic, and you must always show the attribution *© OpenStreetMap contributors* on the map. The code in this lesson does both.
 
-In this lesson, you will use the web SDK to draw a map and display your sensor's GPS location's path.
-
-## Create an Azure Maps resource
+## Set up Leaflet and OpenStreetMap
 
 Your first step is to create an Azure Maps account.
 
-### Task - create an Azure Maps resource
+### Task - check that you can reach the map libraries
 
-1. Run the following command from your Terminal or Command Prompt to create an Azure Maps resource in your `gps-sensor` resource group:
+1. Open the following addresses in your browser and confirm that each one loads (a block of code, or a small map tile image):
 
-    ```sh
-    az maps account create --name gps-sensor \
-                           --resource-group gps-sensor \
-                           --accept-tos \
-                           --sku G2 \
-                           --kind Gen2
-    ```
+    - `https://unpkg.com/leaflet@1.9.4/dist/leaflet.js`
+    - `https://tile.openstreetmap.org/0/0/0.png`
 
-    This will create an Azure Maps resource called `gps-sensor`. The tier being used is `G2`, which is a paid tier that includes a range of features, but with a generous amount of calls for free.
-
-    > 💁 To see the cost of using Azure Maps, check out the [Azure Maps pricing page](https://azure.microsoft.com/pricing/details/azure-maps/?WT.mc_id=academic-17441-jabenn).
-
-1. You will need an API key for the maps resource. Use the following command to get this key:
-
-    ```sh
-    az maps account keys list --name gps-sensor \
-                              --resource-group gps-sensor \
-                              --output table
-    ```
-
-    Take a copy of the `PrimaryKey` value.
+    If either one is blocked, your network may be filtering it.
 
 ## Show a map on a web page
 
@@ -151,11 +126,11 @@ Now you can take the next step which is to display your map on a web page. We wi
 
     > 🎓 a `div` is a section of a web page that can be named and styled.
 
-1. Under the opening `<head>` tag, add an external style sheet to control the map display, and an external script from the Web SDK to manage its behavior:
+1. Under the `<meta>` tag in the `<head>`, add an external style sheet to control the map display, and an external script from Leaflet to manage its behavior:
 
     ```html
-    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" type="text/css" />
-    <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     ```
 
     This style sheet contains the settings for how the map looks, and the script file contains code to load the map. Adding this code is similar to including C++ header files or importing Python modules.
@@ -163,21 +138,17 @@ Now you can take the next step which is to display your map on a web page. We wi
 1. Under that script, add a script block to launch the map.
 
     ```javascript
-    <script type='text/javascript'>
-        function init() {
-            var map = new atlas.Map('myMap', {
-                center: [-7.48182, 39.81556],
-                zoom: 12,
-                authOptions: {
-                    authType: "subscriptionKey",
-                    subscriptionKey: "<subscription_key>"
-                }
-            });
+    <script>
+        async function init() {
+            const center = [39.81556, -7.48182];
+            const map = L.map('myMap').setView(center, 14);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
         }
     </script>
     ```
-
-    Replace `<subscription_key>` with the `PrimaryKey` API key for your Azure Maps account.
 
     If you open your `index.html` page in a web browser, you should see a map loaded, and focused on the `center` coordinates.
 
@@ -185,11 +156,13 @@ Now you can take the next step which is to display your map on a web page. We wi
 
     ✅ Experiment with the zoom and center parameters to change your map display. You can add different coordinates corresponding to your data's latitude and longitude to re-center the map.
 
+   > ⚠️ Leaflet uses `[latitude, longitude]` order, so the center in this code is `[39.81556, -7.48182]`.
+
 > 💁 A better way to work with web apps locally is to install [http-server](https://www.npmjs.com/package/http-server). You will need [node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed before using this tool. Once those tools are installed, you can navigate to the location of your `index.html` file and type `http-server`. The web app will open on a local webserver [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
 
 ## The GeoJSON format
 
-Now that you have your web app in place with the map displaying, you need to extract GPS data from your storage account and display it in a layer of markers on top of the map. Before we do that, let's look at the [GeoJSON](https://wikipedia.org/wiki/GeoJSON) format that is required by Azure Maps.
+Now that you have your web app in place with the map displaying, you need to extract GPS data from your storage account and display it in a layer of markers on top of the map. Before we do that, let's look at the [GeoJSON](https://wikipedia.org/wiki/GeoJSON) format, which Leaflet can read directly.
 
 [GeoJSON](https://geojson.org/) is an open standard JSON specification with special formatting designed to handle geographic-specific data. You can learn about it by testing sample data using [geojson.io](https://geojson.io), which is also a useful tool to debug GeoJSON files.
 
@@ -219,11 +192,11 @@ Of particular interest is the way the data is nested as a `Feature` within a `Fe
 
 `Geometry` can have different types, such as a single point or a polygon. In this example, it is a point with two coordinates specified, the longitude, and the latitude.
 
-✅ Azure Maps supports standard GeoJSON plus some [enhanced features](https://docs.microsoft.com/azure/azure-maps/extend-geojson?WT.mc_id=academic-17441-jabenn) including the ability to draw circles and other geometries.
+✅ Leaflet's `L.geoJSON` function reads standard GeoJSON and swaps the coordinates into the `[lat, lon]` order that the rest of Leaflet uses, so you only have to follow the GeoJSON rule when you build your data.
 
 ## Plot GPS data on a Map using GeoJSON
 
-Now you are ready to consume data from the storage that you built in the previous lesson. As a reminder, it is stored as a number of files in blob storage so you will need to retrieve the files and parse them so that Azure Maps can use the data.
+Now you are ready to consume data from the storage that you built in the previous lesson. As a reminder, it is stored as a number of files in blob storage so you will need to retrieve the files and parse them so that Leaflet can use the data.
 
 ### Task - configure storage to be accessed from a web page
 
@@ -258,71 +231,80 @@ If you make a call to your storage to fetch the data you might be surprised to s
 
 ### Task - load the GPS data from storage
 
-1. Replace the entire contents of the `init` function in `index.html` file with the following code:
+1. Replace the entire contents of the `<script>` with the `init` function in `index.html` file with the following code. The map code from the previous task is kept, and the code that loads the blobs is added below it:
 
     ```javascript
-    fetch("https://<storage_name>.blob.core.windows.net/gps-data/?restype=container&comp=list")
-        .then(response => response.text())
-        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
-        .then(xml => {
-            let blobList = Array.from(xml.querySelectorAll("Url"));
-                blobList.forEach(async blobUrl => {
-                    loadJSON(blobUrl.innerHTML)                
-        });
-    })
-    .then( response => {
-        map = new atlas.Map('myMap', {
-            center: [-7.48182, 39.81556],
-            zoom: 14,
-            authOptions: {
-                authType: "subscriptionKey",
-                subscriptionKey: "<subscription_key>"
-            }
-        });
-        map.events.add('ready', function () {
-            var source = new atlas.source.DataSource();
-            map.sources.add(source);
-            map.layers.add(new atlas.layer.BubbleLayer(source));
-            source.add(features);
-        })
-    })
+    const containerUrl = "https://<storage_name>.blob.core.windows.net/gps-data/";
+
+    async function init() {
+        // The map, as before
+        const center = [39.81556, -7.48182];
+        const map = L.map('myMap').setView(center, 14);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // The GPS data
+        const blobUrls = await listBlobs();
+        console.log("Blobs found:", blobUrls.length);
+
+        const features = await readFeatures(blobUrls);
+        console.log("Valid points:", features.length);
+
+        // Draw every GeoJSON point as a circle on the map
+        const layer = L.geoJSON(
+            { type: "FeatureCollection", features: features },
+            { pointToLayer: (feature, latlng) => L.circleMarker(latlng, { radius: 6 }) }
+        ).addTo(map);
+
+        if (features.length > 0) {
+            map.fitBounds(layer.getBounds(), { maxZoom: 17 });
+        }
+    }
     ```
 
-    Replace `<storage_name>` with the name of your storage account. Replace `<subscription_key>` with the `PrimaryKey` API key for your Azure Maps account.
+    Replace `<storage_name>` with the name of your storage account.
 
-    There are several things happening here. First, the code fetches your GPS data from your blob container using a URL endpoint built using your storage account name. This URL retrieves from `gps-data`, indicating the resource type is a container (`restype=container`), and lists information about all the blobs. This list won't return the blobs themselves, but will return a URL for each blob that can be used to load the blob data.
+    The code builds the map, fetches the list of blobs, loads each one and converts it to GeoJSON, then adds all the points to the map in a single layer. The `console.log` lines help you find problems: open your browser's developer tools (press `F12`) and look at the *Console* tab.
 
-    > 💁 You can put this URL into your browser to see details of all the blobs in your container. Each item will have a `Url` property that you can also load in your browser to see the contents of the blob.
-
-    This code then loads each blob, calling a `loadJSON` function, which will be created next. It then creates the map control, and adds code to the `ready` event. This event is called when the map is displayed on the web page.
-
-    The ready event creates an Azure Maps data source - a container that contains GeoJSON data that will be populated later. This data source is then used to create a bubble layer - that is a set of circles on the map centered over each point in the GeoJSON.
-
-1. Add the `loadJSON` function to your script block in `index.html` file, below the `init` function:
+1. Add the `listBlobs` and `readFeatures` functions to your script block in `index.html` file, below the `init` function:
 
     ```javascript
-    var map, features;
+    async function listBlobs() {
+        const xml = await fetch(containerUrl + "?restype=container&comp=list")
+            .then(response => response.text())
+            .then(str => new window.DOMParser().parseFromString(str, "text/xml"));
+        return Array.from(xml.querySelectorAll("Url")).map(url => url.textContent);
+    }
 
-    function loadJSON(file) {
-        var xhr = new XMLHttpRequest();
-        features = [];
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    gps = JSON.parse(xhr.responseText)
-                    features.push(
-                        new atlas.data.Feature(new atlas.data.Point([parseFloat(gps.gps.lon), parseFloat(gps.gps.lat)]))
-                    )
-                }
+    async function readFeatures(urls) {
+        const features = await Promise.all(urls.map(async url => {
+            try {
+                const gps = (await (await fetch(url)).json()).gps;
+                const lon = parseFloat(gps.lon);
+                const lat = parseFloat(gps.lat);
+                if (isNaN(lon) || isNaN(lat)) return null;
+
+                // GeoJSON order is [longitude, latitude]
+                return {
+                    type: "Feature",
+                    geometry: { type: "Point", coordinates: [lon, lat] }
+                };
+            } catch (e) {
+                console.warn("Could not read", url, e);
+                return null;
             }
-        };
-        xhr.open("GET", file, true);
-        xhr.send();
+        }));
+        return features.filter(feature => feature !== null);
     }    
     ```
 
-    This function is called by the fetch routine to parse through the JSON data and convert it to be read as longitude and latitude coordinates as geoJSON.
-    Once parsed, the data is set as part of a geoJSON `Feature`. The map will be initialized and little bubbles will appear around the path your data is plotting:
+    `listBlobs` calls the storage container with `restype=container&comp=list`, which returns information about all the blobs. This list won't return the blobs themselves, but will return a `Url` for each blob that can be used to load the blob data.
+
+    > 💁 You can put the container URL into your browser to see details of all the blobs in your container. Each item will have a `Url` property that you can also load in your browser to see the contents of the blob.
+
+    `readFeatures` loads all the blobs at the same time, and waits until every one has finished before returning. This is important: if the map were drawn before the data had arrived, some or all of the points would be missing. Each blob is converted to a GeoJSON `Feature`, with the coordinates in `[lon, lat]` order, and any blob that can't be read is skipped.
 
 1. Load the HTML page in your browser. It will load the map, then load all the GPS data from storage and plot it on the map.
 
@@ -334,14 +316,13 @@ If you make a call to your storage to fetch the data you might be surprised to s
 
 ## 🚀 Challenge
 
-It's nice to be able to display static data on a map as markers. Can you enhance this web app to add animation and show the path of the markers over time, using the timestamped json files? Here are [some samples](https://azuremapscodesamples.azurewebsites.net/) of using animation within maps.
+It's nice to be able to display static data on a map as markers. Can you enhance this web app to show the path of the markers over time, using the timestamped json files? Hint: sort the points by their timestamp and draw them as a line with `L.polyline`. To go further, look at the animated marker examples in the [Leaflet plugins list](https://leafletjs.com/plugins.html).
 
 ## Review & Self Study
 
-Azure Maps is particularly useful for working with IoT devices.
-
-* Research some of the uses in the [Azure Maps documentation on Microsoft docs](https://docs.microsoft.com/azure/azure-maps/tutorial-iot-hub-maps?WT.mc_id=academic-17441-jabenn).
-* Deepen your knowledge of map making and waypoints with the [create your first route finding app with Azure Maps self-guided learning module on Microsoft Learn](https://docs.microsoft.com/learn/modules/create-your-first-app-with-azure-maps/?WT.mc_id=academic-17441-jabenn).
+* Learn more about the library in the [Leaflet quick start guide](https://leafletjs.com/examples/quick-start/).
+* See how Leaflet handles GeoJSON in the [Using GeoJSON with Leaflet tutorial](https://leafletjs.com/examples/geojson/).
+* If you want to try a commercial mapping service later, Azure Maps is particularly useful for working with IoT devices. Research some of the uses in the [Azure Maps documentation on Microsoft docs](https://docs.microsoft.com/azure/azure-maps/tutorial-iot-hub-maps?WT.mc_id=academic-17441-jabenn).
 
 ## Assignment
 
