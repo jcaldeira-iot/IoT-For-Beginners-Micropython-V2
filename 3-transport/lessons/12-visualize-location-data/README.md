@@ -124,7 +124,7 @@ Now you can take the next step which is to display your map on a web page. We wi
 
     > 🎓 a `div` is a section of a web page that can be named and styled.
 
-1. Under the `<meta>` tag in the `<head>`, add an external style sheet to control the map display, and an external script from Leaflet to manage its behavior:
+1. Under the opening `<head>` tag, add an external style sheet to control the map display, and an external script from Leaflet to manage its behavior:
 
     ```html
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
