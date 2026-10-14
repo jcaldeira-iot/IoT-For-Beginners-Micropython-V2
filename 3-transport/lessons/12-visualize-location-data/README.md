@@ -86,8 +86,6 @@ In this lesson, you will use Leaflet to draw a map and display your sensor's GPS
 
 ## Set up Leaflet and OpenStreetMap
 
-Your first step is to create an Azure Maps account.
-
 ### Task - check that you can reach the map libraries
 
 1. Open the following addresses in your browser and confirm that each one loads (a block of code, or a small map tile image):
