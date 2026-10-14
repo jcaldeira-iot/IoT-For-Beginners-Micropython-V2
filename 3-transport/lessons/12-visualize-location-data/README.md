@@ -177,8 +177,8 @@ Sample GeoJSON data looks like this:
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -2.10237979888916,
-          57.164918677004714
+          -7.48182,
+          39.81556
         ]
       }
     }
