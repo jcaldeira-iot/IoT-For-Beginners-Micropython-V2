@@ -14,6 +14,8 @@ Install the Pip packages for CounterFit in your computer system or virtual machi
 
     ```sh
     pip3 install CounterFit
+    pip3 install --upgrade setuptools
+    pip3 install --upgrade eventlet
     pip3 install werkzeug==2.2.2
     pip3 install counterfit-connection
     ```
