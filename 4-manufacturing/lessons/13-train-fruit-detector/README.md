@@ -122,10 +122,8 @@ Image classifiers run at low resolution. Larger images are shrunk before trainin
 
 1. In your project, open the **Upload** area and upload your training images in two separate batches, naming them `ripe` and `unripe` (for identification purposes only). Then, in the **Annotate** area, assign the class `ripe` to the ripe batch and `unripe` to the unripe batch using the **Label manually** option.
 
-	![The upload dialogs showing the upload of ripe and unripe banana pictures](../../../images/image-upload-bananas.png)
-	![The annotate dialogs for banana pictures 1](../../../images/image-annotate-bananas1.png)
-	![The annotate dialogs for banana pictures 2](../../../images/image-annotate-bananas2.png)
-	![The annotate dialogs for banana pictures 3](../../../images/image-annotate-bananas3.png)
+	![The upload dialogs showing the upload of ripe and unripe banana pictures](../../../images/image-upload-bananas.png) ![The annotate dialogs for banana pictures 1](../../../images/image-annotate-bananas1.png)
+	![The annotate dialogs for banana pictures 2](../../../images/image-annotate-bananas2.png) ![The annotate dialogs for banana pictures 3](../../../images/image-annotate-bananas3.png)
 	![The annotate dialogs for banana pictures 4](../../../images/image-annotate-bananas4.png)
 
    > 💁 It is easier to upload all images of one class at a time and assign the class during upload, rather than tagging them one by one afterwards.
