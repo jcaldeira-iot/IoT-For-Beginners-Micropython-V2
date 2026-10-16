@@ -100,7 +100,7 @@ There are a wide range of tools that can help you do this, including cloud-based
 
 > 💁 The user interface may change over time. The [Roboflow documentation](https://docs.roboflow.com) is always the most up to date reference.
 
-    ![The settings for the custom vision project with the name set to fruit-quality-detector, no description, the resource set to fruit-quality-detector-training, the project type set to classification, the classification types set to multi class and the domains set to food](../../../images/custom-vision-create-project.png)
+![The settings for the custom vision project with the name set to fruit-quality-detector, no description, the resource set to fruit-quality-detector-training, the project type set to classification, the classification types set to multi class and the domains set to food](../../../images/custom-vision-create-project.png)
 
 ✅ Take some time to explore the Roboflow UI for your project.
 
