@@ -128,9 +128,11 @@ Image classifiers run at low resolution. Larger images are shrunk before trainin
 
    > 💁 It is easier to upload all images of one class at a time and assign the class during upload, rather than tagging them one by one afterwards.
 
-1. Roboflow divides your images into **train**, **validation** and **test** sets. With a very small dataset, make sure every set contains images of both classes. If the split puts all images of one class in the same set, adjust it.
+1. It is now time to create a version of your dataset for training. Open the **Versions** area in your project and click **Add Annotated Images** to add the images from the previous step to your dataset.
 
-1. Create a **version** of your dataset. For this lesson you can keep the default preprocessing (resizing) and, optionally, add simple augmentations such as flips or small brightness changes. Augmentation creates modified copies of your images, which helps when you have few photos.
+   > 💁 Roboflow divides your images into **train**, **validation** and **test** sets. With a very small dataset, make sure every set contains images of both classes. If the split puts all images of one class in the same set, adjust it.
+
+1. Back in the **Versions** area, everything is ready to start training. Click **Train a Model**. You can adjust some parameters, but for this lesson you can keep the defaults.
 
 1. Start training from the version page, choosing Roboflow's hosted training. When asked, start from a pre-trained checkpoint so that transfer learning is used.
 
