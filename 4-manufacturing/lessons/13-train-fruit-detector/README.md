@@ -114,23 +114,19 @@ Ideally each picture should be just the fruit, with either a consistent backgrou
 
 Image classifiers run at low resolution. Larger images are shrunk before training and prediction, so ensure the thing you are classifying takes up a large part of the image, otherwise it may be too small in the smaller image used by the classifier.
 
-1. Gather pictures for your classifier. You will need at least 5 pictures for each label to train the classifier, but the more the better. You will also need a few additional images to test the classifier. These images should all be different images of the same thing. For example:
+1. Gather pictures for your classifier. You will need at least 5 pictures for each class to train the classifier, but the more the better. You will also need a few additional images to test the classifier. These images should all be different images of the same thing. You can also find some example images in the [images](./images) folder of ripe and unripe bananas that you can use.
 
-   - Using 2 ripe bananas, take some pictures of each one from a few different angles, taking at least 7 pictures (5 to train, 2 to test), but ideally more.
-
-     ![Photos of 2 different bananas](../../../images/banana-training-images.png)
-
-   - Repeat the same process using 2 unripe bananas.
-
-   You should have at least 10 training images, with at least 5 ripe and 5 unripe, and 4 testing images, 2 ripe, 2 unripe. Your images should be png or jpeg. If you create them with an iPhone, for example, they may be high-resolution HEIC images, so will need to be converted and possibly shrunk. The more images the better, and you should have a similar number of ripe and unripe.
-
-   If you don't have both ripe and unripe fruit, you can use different fruits, or any two objects you have available. You can also find some example images in the [images](./images) folder of ripe and unripe bananas that you can use.
+   You should have at least 10 training images, with at least 5 ripe and 5 unripe, and 4 testing images, 2 ripe, 2 unripe. Your images should be png or jpeg. The more images the better, and you should have a similar number of ripe and unripe.
 
    > 💁 **Keep your test images separate.** Do not upload the test images to the project yet. You will use them later to check how the model behaves on images it has never seen.
 
-1. In your project, open the **Upload** area and upload your training images. Assign the class `ripe` to the ripe fruit and `unripe` to the unripe fruit.
+1. In your project, open the **Upload** area and upload your training images in two separate batches, naming them `ripe` and `unripe` (for identification purposes only). Then, in the **Annotate** area, assign the class `ripe` to the ripe batch and `unripe` to the unripe batch using the **Label manually** option.
 
 	![The upload dialogs showing the upload of ripe and unripe banana pictures](../../../images/image-upload-bananas.png)
+	![The annotate dialogs for banana pictures 1](../../../images/image-annotate-bananas1.png)
+	![The annotate dialogs for banana pictures 2](../../../images/image-annotate-bananas2.png)
+	![The annotate dialogs for banana pictures 3](../../../images/image-annotate-bananas3.png)
+	![The annotate dialogs for banana pictures 4](../../../images/image-annotate-bananas4.png)
 
    > 💁 It is easier to upload all images of one class at a time and assign the class during upload, rather than tagging them one by one afterwards.
 
