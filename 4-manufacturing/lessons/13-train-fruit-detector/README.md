@@ -134,11 +134,9 @@ Image classifiers run at low resolution. Larger images are shrunk before trainin
 
 1. Back in the **Versions** area, everything is ready to start training. Click **Train a Model**. You can adjust some parameters, but for this lesson you can keep the defaults.
 
-1. Start training from the version page, choosing Roboflow's hosted training. When asked, start from a pre-trained checkpoint so that transfer learning is used.
+1. In the **Train a Model** area, select the architecture you want to use. Roboflow provides some free credits that can be used for certain tasks. When choosing an architecture, check the **Estimated Roboflow Credits**, **Cloud API Pricing** and **Estimated Training Time** in the **Training Summary** view, and select the option that minimises cost and training time. After your selection **Start Training**.
 
 The classifier will then train. It can take several minutes for the training to complete.
-
-> 🍌 If you decide to eat your fruit whilst the classifier is training, make sure you have enough images to test with first!
 
 ## Test your image classifier
 
@@ -146,13 +144,11 @@ Once your classifier is trained, you can test it by giving it a new image to cla
 
 ### Task - test your image classifier
 
-1. Open your trained model and use the option to try it on an image (the visual testing / deploy preview). Upload one of the testing images you set aside earlier.
+1. Open the **Test** area of your project and upload one of the testing images you set aside earlier.
 
-1. Try all the testing images you have access to and observe the probabilities.
+1. Try all the testing images you have access to and observe the `class` and `confidence` values.
 
    ![An unripe banana predicted as unripe with a high probability and ripe with a low probability](../../../images/banana-unripe-quick-test-prediction.png)
-
-1. Look at the model's evaluation metrics shown after training (for example accuracy, precision and recall).
 
 ## Retrain your image classifier
 
