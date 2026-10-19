@@ -34,11 +34,11 @@ Camera sensors are digital sensors, sending image data as digital data, usually 
 
 ## Capture an image using an IoT device
 
-You can use your IoT device to capture an image for classification. Since you don't have a physical camera, you will use image files instead.
+You can use your IoT device to capture an image for classification. Since you don't have a physical camera connected to your ESP32, you will use image files instead for this lesson.
 
 ## Classify images from your IoT device
 
-You can now use these connection details to call the image classifier from your IoT device.
+You will now go through the steps required to call the image classifier from your IoT device.
 
 ### Task - classify images from your IoT device
 
