@@ -150,7 +150,7 @@ One of the powerful features of Python is the ability to install [pip packages](
 
 The server code can now be written in Python.
 
-1. Open any text editor and create a Python file called `app.py`:
+1. Open any text editor and create a Python file called `app.py`.
 
 1. Add the following code to the created file:
 
