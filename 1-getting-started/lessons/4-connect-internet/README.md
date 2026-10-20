@@ -247,7 +247,7 @@ A thermostat could receive a command from the cloud to turn the heating on. Base
 
 The next step for our Internet controlled nightlight is for the server code to send a command back to the IoT device to control the light based on the light levels it senses.
 
-1. Open the server file in the text editor
+1. Open the server file in the text editor.
 
 1. Add the following line after the declaration of the `client_telemetry_topic` to define which topic to send commands to:
 
@@ -266,7 +266,7 @@ The next step for our Internet controlled nightlight is for the server code to s
 
     This sends a JSON message to the command topic with the value of `led_on` set to true or false depending on if the light is greater than 2047 or not. If the light is greater than 2047, true is sent to instruct the device to turn the LED on.
 
-1. Run the code as before
+1. Run the code as before.
 
 1. Adjust the light levels detected by your sensor. Messages being received and commands being sent will be written to the terminal:
 
