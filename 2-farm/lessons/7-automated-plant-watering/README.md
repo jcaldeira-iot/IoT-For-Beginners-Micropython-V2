@@ -190,11 +190,9 @@ The first option is not always a good solution for large farms. The farmer might
 
 Update your server code to run the relay for 5 seconds, then wait 20 seconds.
 
-1. Open the `soil-moisture-sensor-server` folder in VS Code if it isn't already open.
+1. Open the `app.py` server file in any text editor.
 
-1. Open the `app.py` file
-
-1. Add the following code to the `app.py` file below the existing imports:
+1. Add the following code to the file below the existing imports:
 
     ```python
     import threading
