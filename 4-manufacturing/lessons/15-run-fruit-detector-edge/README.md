@@ -100,11 +100,11 @@ An IoT device such as the ESP32 has to reach the edge device over your local net
 
 In *bridge* mode the VM gets its own IP address on your network, just like a physical computer.
 
-1. Change the VM network settings:
+1. **Shut down the VM**, then change its network settings:
 
-    - **VirtualBox menu**: *Devices > Network Settings > Network > Adapter 1 > Attached to: Bridged Adapter*, then choose the physical network adapter your computer is using (Wi-Fi or Ethernet).
+    - **VirtualBox menu**: *Settings > Network > Adapter 1 > Attached to: Bridged Adapter*, then choose the physical network adapter your computer is using (Wi-Fi or Ethernet).
 
-2. Now find the VM IP address:
+2. Start the VM and find its IP address::
 
     ```sh
     hostname -I
@@ -177,18 +177,21 @@ You need three things from your Roboflow account:
 
     client = InferenceHTTPClient(
         api_url="http://localhost:9001",
-        api_key="<api key>",
-    )
+        api_key="<api key>"
+    ).configure(InferenceConfiguration(api_key_transport="header"))
 
     result = client.run_workflow(
         workspace_name="<workspace>",
         workflow_id="<workflow id>",
-        images={"image": "<image file>"},
+        images={"image": "<image file>"}
     )
-    print(result)
+    pred = result[0]["predictions"]
+	print(pred["top"], ":", round(pred["confidence"] * 100, 2),"%")
     ```
 
     Replace `<api key>`, `<workspace>` and `<workflow id>` with your values, and `<image file>` with the path to a ripe or unripe fruit image. This code uses the inference SDK to call the local inference server and send it an image for classification.
+
+    > 💁 The response from a workflow can contain several outputs, if you want to print the full response instead, add the following instruction `print(result)`.
 
 1. Run it:
 
