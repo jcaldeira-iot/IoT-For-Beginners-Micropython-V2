@@ -16,7 +16,6 @@ In this lesson we'll cover:
 * [Use object detection in retail](#use-object-detection-in-retail)
 * [Train an object detector](#train-an-object-detector)
 * [Test your object detector](#test-your-object-detector)
-* [Retrain your object detector](#retrain-your-object-detector)
 
 ## Object detection
 
