@@ -42,19 +42,8 @@ def send_telemetry(telemetry):
     finally:
         response.close()
 
-def handle_command(command):
-    print("Command received - ", command)
-
-    if command == "relay_on":
-        relay.on()
-    elif command == "relay_off":
-        relay.off()
-
 def handle_reply(reply):
-    command = reply.get('command')
-    if command is not None:
-        handle_command(command)
-
+    print("Reply ", reply)
 
 while True:
     soil_moisture = adc.read()

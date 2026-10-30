@@ -101,7 +101,6 @@ Now that you have a cloud account, you can create an IoT service. Your service w
 
 * Only accept telemetry from registered devices that know their secret key.
 * Show the telemetry it receives, so you can monitor your devices.
-* Keep a command for a device until the device asks for it.
 
 The cloud services available in Cloudflare can be configured through a web-based dashboard, or via a command-line tool called *Wrangler*. For this task, you will use Wrangler.
 
@@ -179,14 +178,11 @@ Cloudflare services, such as Workers or KV storage, are referred to as **resourc
         if (request.method === "POST" && url.pathname === "/telemetry") {
           return handleTelemetry(request, env);
         }
-        if (request.method === "POST" && url.pathname === "/command") {
-          return handleCommand(request, env);
-        }
         return new Response("Not found", { status: 404 });
       },
     };
 
-    // A device sends telemetry and receives any waiting command in the reply
+    // A device sends telemetry and the service confirms that it was received
     async function handleTelemetry(request, env) {
       const deviceId = request.headers.get("x-device-id");
       const deviceKey = request.headers.get("x-api-key");
@@ -209,48 +205,13 @@ Cloudflare services, such as Workers or KV storage, are referred to as **resourc
 
       console.log(JSON.stringify({ device: deviceId, telemetry }));
 
-      // Hand over the waiting command, if there is one
-      const commandKey = `command:${deviceId}`;
-      const command = await env.DEVICE_STATE.get(commandKey);
-      if (command !== null) {
-        await env.DEVICE_STATE.delete(commandKey);
-      }
-
-      return Response.json({ command });
-    }
-
-    // An administrator queues a command for a device
-    async function handleCommand(request, env) {
-      if (request.headers.get("x-admin-key") !== env.ADMIN_KEY) {
-        return new Response("Unauthorized", { status: 401 });
-      }
-
-      let body;
-      try {
-        body = await request.json();
-      } catch {
-        return new Response("Invalid JSON", { status: 400 });
-      }
-
-      const validCommands = ["relay_on", "relay_off"];
-      if (!body.device_id || !validCommands.includes(body.command)) {
-        return new Response("Invalid request", { status: 400 });
-      }
-
-      // The command is kept for 5 minutes, then it is discarded
-      await env.DEVICE_STATE.put(`command:${body.device_id}`, body.command, {
-        expirationTtl: 300,
-      });
-      return Response.json({ queued: body.command });
+      return Response.json({ status: "received" });
     }
     ```
 
-    The service has two addresses:
+    The service has one address, `/telemetry`, used by your devices. It checks that the device is registered and knows its secret key, reads the telemetry, writes it to the log, and replies with a confirmation that it was received.
 
-    * `/telemetry` - used by your devices. It checks that the device is registered and knows its secret key, reads the telemetry, writes it to the log, and replies with the command that is waiting for the device, or `null` if there is none.
-    * `/command` - used by you. It needs an administrator key, and queues a command for a device.
-
-    > 💁 The code checks every request, so that nobody who finds the address of your service can read your data or control your plant.
+    > 💁 The code checks every request, so that nobody who finds the address of your service can send data as one of your devices.
 
 ### Task - deploy your IoT service
 
@@ -273,14 +234,13 @@ Cloudflare services, such as Workers or KV storage, are referred to as **resourc
 In the previous lesson, you used MQTT and sent messages back and forward on different topics, with the different topics having different purposes. IoT services have a number of defined ways for the device to communicate with the service, or for the service to communicate with the device. In your service these are:
 
 * Device to cloud (D2C) messages - these are messages sent from a device to the service, such as telemetry. They can then be read by your application code, for example from the log.
-* Cloud to device (C2D) messages - these are messages sent from application code, via the service, to an IoT device, such as a command to control an actuator.
 * Device identity - the service knows which devices are registered, and each one has its own secret key, so you can allow or block devices one by one.
 
-Your service keeps a command for a limited period of time (5 minutes), so if a device is offline when you send it, it can still pick it up when it reconnects, as long as it is not too late.
+Messages in the other direction, from the cloud to the device, such as a command to control an actuator, are called cloud to device (C2D) messages. Your service doesn't send any yet. In the next lesson you will add code that decides when to water the plant, and the service will send the command back in the reply to the telemetry.
 
-The device always starts the communication. It sends its telemetry in a request, and any waiting command comes back in the reply. This means the device only makes outgoing connections, so it works behind a home router without any configuration, and a command is only delivered when the device next sends telemetry.
+The device always starts the communication. It sends its telemetry in a request, and the service replies. This means the device only makes outgoing connections, so it works behind a home router without any configuration.
 
-> 💁 Workers KV is designed for data that is read often and written rarely. Your service reads from it on every telemetry request, and writes to it only when you send a command. A new command can take up to about a minute to be visible in every location, so a command may not reach your device on the very next request.
+> 💁 Workers KV is designed for data that is read often and written rarely. Your service reads from it on every telemetry request, to check the device, and you write to it only when you register a device.
 
 ✅ Do some research: Read more about the different ways IoT platforms exchange messages with devices, such as telemetry, commands, and device state or settings. Which ones does your service not support?
 
@@ -311,7 +271,7 @@ Once the service is deployed, your IoT device can connect to it. Only registered
 
     This registers a device with an ID of `soil-moisture-sensor`.
 
-    > 💁 The `--remote` option is important. Without it, the key is saved in a local test storage and not in the store of your deployed service.
+    > 💁 The `--remote` option is important. Without it, the key is saved in a local test storage and not in the storage of your deployed service.
 
 1. Test that your service accepts the device, by sending a telemetry message with `curl`:
 
@@ -328,7 +288,7 @@ Once the service is deployed, your IoT device can connect to it. Only registered
     You should see:
 
     ```output
-    {"command":null}
+    {"status":"received"}
     ```
 
     Try again with a wrong key, and check that you get `Unauthorized`.
@@ -343,10 +303,10 @@ Your device needs to send a request like the one you just tested with `curl`. Th
 | Method | `POST` |
 | Headers | `Content-Type: application/json`, `x-device-id: soil-moisture-sensor`, `x-api-key: <device key>` |
 | Body | `{"soil_moisture": 3342}` |
-| Reply | `{"command": null}` or `{"command": "relay_on"}` |
+| Reply | `{"status": "received"}` |
 | Errors | `401` for an unknown device or a wrong key, `400` for invalid JSON |
 
-When the reply contains a command, the device runs it: `relay_on` switches the relay on and `relay_off` switches it off.
+The device does not need to do anything with the reply for now.
 
 Work through the relevant guide to connect your IoT device to the cloud:
 
@@ -379,59 +339,11 @@ For now, you won't be updating your server code. Instead you can use Wrangler to
 
 1. Exit the monitor with `Ctrl+C` when you are done.
 
-### Task - control your IoT device
-
-You can also send commands to your IoT device, using an administrator key.
-
-1. Generate an administrator secret key:
-
-    ```sh
-    node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
-    ```
-
-    Take a note of the output, as you will need it to send commands.
-
-1. Store the administrator key in your service:
-
-    ```sh
-    npx wrangler secret put ADMIN_KEY
-    ```
-
-    Paste the key generated when asked.
-
-1. Make sure your IoT device is still running and use the following command in the terminal to queue the `relay_on` command for the IoT device:
-
-    ```sh
-    curl -X POST https://soil-moisture-iot.<your-subdomain>.workers.dev/command \
-         -H "Content-Type: application/json" \
-         -H "x-admin-key: <admin key>" \
-         -d '{"device_id": "soil-moisture-sensor", "command": "relay_on"}'
-    ```
-
-    Replace `<admin key>` with the administrator key you stored earlier.
-
-    The service replies with `{"queued":"relay_on"}`. The next time your device sends telemetry, it will receive the command, and you will see the relay turn on and the corresponding output from your IoT device:
-
-    ```output
-    >>> %Run -c $EDITOR_CONTENT
-
-    MPY: soft reboot
-    connecting to network...
-    network config: ('10.6.3.163', '255.255.240.0')
-    Sending telemetry  {"soil_moisture": 316}
-    Sending telemetry  {"soil_moisture": 819}
-    Command received - relay_on
-    ```
-
-1. Repeat the above step, but set the `command` to `relay_off`. You will see the relay turn off and the corresponding output from the IoT device.
-
-> 💁 Your device only finds out about the command when it next sends telemetry, so there can be a delay of several seconds.
-
 ---
 
 ## 🚀 Challenge
 
-The free plan of Cloudflare Workers allows 100,000 requests a day, and the Workers KV store allows 100,000 reads a day. The code you wrote sends telemetry messages every 10 seconds, and your service reads from the store twice for every message, once to check the device and once to look for a command. How many messages a day is one message every 10 seconds, and how many reads is that?
+The free plan of Cloudflare Workers allows 100,000 requests a day, and the Workers KV store allows 100,000 reads a day. The code you wrote sends telemetry messages every 10 seconds, and your service reads from the store once for every message, to check the device. How many messages a day is one message every 10 seconds, and how many reads is that?
 
 Think about how often soil moisture measurements should be sent? How can you change your code to stay within the free plan and check as often as needed but not too often? What if you wanted to add a second device?
 

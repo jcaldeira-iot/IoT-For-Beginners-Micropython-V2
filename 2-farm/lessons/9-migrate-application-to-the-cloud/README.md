@@ -4,477 +4,251 @@
 
 > Sketchnote by [Nitya Narasimhan](https://github.com/nitya). Click the image for a larger version.
 
-
-This lesson was taught as part of the [IoT for Beginners Project 2 - Digital Agriculture series](https://youtube.com/playlist?list=PLmsFUfdnGr3yCutmcVg6eAUEfsGiFXgcx) from the [Microsoft Reactor](https://developer.microsoft.com/reactor/?WT.mc_id=academic-17441-jabenn).
-
-[![Control your IoT device with serverless code](https://img.youtube.com/vi/VVZDcs5u1_I/0.jpg)](https://youtu.be/VVZDcs5u1_I)
-
 ## Introduction
 
-In the last lesson, you learned how to connect your plant soil moisture monitoring and relay control to a cloud-based IoT service. The next step is to move the server code that controls the timing of the relay to the cloud. In this lesson you will learn how to do this using serverless functions.
+In the last lesson, you built an IoT service on Cloudflare Workers, registered your plant as a device, and used it to receive and monitor telemetry. However, the code that decides when to water the plant still runs on your own computer. If the computer is switched off, nothing happens.
+
+In this lesson you will learn what *serverless* code is, and move the watering logic into your IoT service, so that it runs in the cloud without any server on your side. Your device will send its soil moisture, the service will decide if the plant needs watering, and the reply will carry the command for the relay.
 
 In this lesson we'll cover:
 
 * [What is serverless?](#what-is-serverless)
 * [Create a serverless application](#create-a-serverless-application)
-* [Create an IoT Hub event trigger](#create-an-iot-hub-event-trigger)
-* [Send direct method requests from serverless code](#send-direct-method-requests-from-serverless-code)
-* [Deploy your serverless code to the cloud](#deploy-your-serverless-code-to-the-cloud)
+* [Deploy your serverless code](#deploy-your-serverless-code)
+* [HTTP trigger](#http-trigger)
+* [Send commands back to your device](#send-commands-back-to-your-device)
 
 ## What is serverless?
 
-Serverless, or serverless computing, involves creating small blocks of code that are run in the cloud in response to different kinds of events. When the event happens your code is run, and it is passed data about the event. These events can be from many different things, including web requests, messages put on a queue, changes to data in a database, or messages sent to an IoT service by IoT devices.
+Serverless, also called *Functions as a Service* (FaaS), is a way of running code in the cloud where you write only a small piece of code, called a *function*, and the cloud provider takes care of everything else: the servers, the operating system, the scaling and the updates. Your function sits idle until something happens, such as a web request, a message or a timer. When that *event* arrives, the provider starts your code, runs it, and stops it again.
 
-![Events being sent from an IoT service to a serverless service, all being processed at the same time by multiple functions being run](../../../images/iot-messages-to-serverless.png)
+![An event triggers a function, which runs and then stops](../../../images/iot-messages-to-serverless.png)
 
-> 💁 If you've used database triggers before, you can think of this as the same thing, code being triggered by an event such as inserting a row.
+The IoT service you created in the last lesson is already serverless: it only runs when a request arrives from your device or from you. You can compare this with the server code you ran in the earlier lessons, which had to be running all the time on a computer, waiting for telemetry.
 
-![When many events are sent at the same time, the serverless service scales up to run them all at the same time](../../../images/serverless-scaling.png)
+The main advantages are:
 
-Your code is only run when the event happens, there is nothing keeping your code alive at other times. The event happens, your code is loaded and run. This makes serverless very scalable - if many events happen at the same time, the cloud provider can run your function as many times as you need at the same time across whatever servers they have available. The downside to this is if you need to share information between events, you need to save it somewhere like a database rather than storing it in memory.
+1. **No servers to manage** - you don't install, patch or monitor a machine.
+2. **Scale** - if a thousand devices send telemetry at the same time, the provider starts as many copies of your function as needed. If there is no telemetry, nothing runs.
+3. **You pay for what you use** - providers charge per execution rather than for a server that sits idle, and most offer a free plan that is more than enough for learning.
 
-Your code is written as a function that takes details about the event as a parameter. You can use a wide range of programming languages to write these serverless functions.
+There are also limits that you need to design around:
 
-> 🎓 Serverless is also referred to as Functions as a service (FaaS) as each event trigger is implemented as a function in code.
+* Functions are **short lived**. They have a limit on how long they can run, so a function cannot wait for 20 seconds and then do something else.
+* Functions are **stateless**. Nothing is remembered between two runs, unless you store it somewhere else, such as the store you created in the last lesson.
 
-Despite the name, serverless does actually use servers. The naming is because you as a developer don't care about the servers needed to run your code, all you care about is that your code is run in response to an event. The cloud provider has a serverless *runtime* that manages allocating servers, networking, storage, CPU, memory and everything else needed to run your code. This model means you can't pay per server for the service, as there is no server. Instead you pay for the time your code is running, and the amount of memory used.
+✅ Do some research: What are other examples where serverless is a good fit, and where would a server that runs all the time be better?
 
-> 💰 Serverless is one of the cheapest ways to run code in the cloud. For example, at the time of writing, one cloud provider allows all of your serverless functions to execute a combined 1,000,000 times a month before they start charging you, and after that they charge US$0.20 for each 1,000,000 executions. When your code is not running, you don't pay.
+### Cloudflare Workers
 
-As an IoT developer, the serverless model is ideal. You can write a function that is called in response to messages sent from any IoT device that is connected to your cloud-hosted IoT service. Your code will handle all messages sent, but only be running when needed.
+Many cloud providers have a serverless service, for example AWS Lambda, Google Cloud Functions and Cloudflare Workers. In this lesson you will keep using Cloudflare Workers, which runs your code in Cloudflare's data centers around the world, close to the user.
 
-✅ Look back at the code you wrote as server code listening to messages over MQTT. How might this run in the cloud using serverless? How do you think the code might be changed to support serverless computing?
+| | Cloudflare Workers |
+|---|---|
+| Trigger | HTTP request, timer (Cron Trigger) and more |
+| Language | JavaScript / TypeScript (and Python in beta) |
+| Storage | Workers KV and others |
+| Deploy | `wrangler deploy` |
 
-> 💁 The serverless model is moving to other cloud services in addition to running code. For example, serverless databases are available in the cloud using a serverless pricing model where you pay per request made against the database, such as a query or insert, usually using pricing based on how much work is done to service the request. For example a single select of one row against a primary key will cost less than a complicated operation joining many tables and returning thousands of rows.
+> 💁 At the time of writing, the free plan of Cloudflare Workers allows 100,000 requests a day, with 10 milliseconds of CPU time for each request. Limits change over time, so check the [Cloudflare Workers pricing page](https://workers.cloudflare.com/pricing) before you start.
 
 ## Create a serverless application
 
-The serverless computing service from Microsoft is called Azure Functions.
+You already have everything you need: a Cloudflare account, the tools installed, and the `soil-moisture-iot` project from the last lesson. In this lesson you will add the watering logic to that project.
 
-![The Azure Functions logo](../../../images/azure-functions-logo.png)
+### Task - open your project
 
-The short video below has an overview of Azure Functions
-
-[![Azure Functions overview video](https://img.youtube.com/vi/8-jz5f_JyEQ/0.jpg)](https://www.youtube.com/watch?v=8-jz5f_JyEQ)
-
-> 🎥 Click the image above to watch a video
-
-✅ Take a moment to do some research and read the overview of Azure Functions in the [Microsoft Azure Functions documentation](https://docs.microsoft.com/azure/azure-functions/functions-overview?WT.mc_id=academic-17441-jabenn).
-
-To write Azure Functions, you start with an Azure Functions app in the language of your choice. Out of the box Azure Functions supports Python, JavaScript, TypeScript, C#, F#, Java, and Powershell. In this lesson you will learn how to write an Azure Functions app in Python.
-
-> 💁 Azure Functions also supports custom handlers so you can write your functions in any language that supports HTTP requests, including older languages such as COBOL.
-
-Functions apps consist of one or more *triggers* - functions that respond to events. You can have multiple triggers inside one function app, all sharing common configuration. For example, in the configuration file for your Functions app you can have the connection details of your IoT Hub, and all the functions in the app can use this to connect and listen for events.
-
-### Task - run Azurite cloud storage emulator
-
-When you deploy your Azure Functions app to the cloud, it needs to use a small amount of cloud storage to store things like the application files and log files. When you run your Functions app locally, you still need to connect to cloud storage, but instead of using actual cloud storage, you can use a storage emulator called [Azurite](https://github.com/Azure/Azurite). This runs locally but acts like cloud storage.
-
-> 🎓 In Azure, the storage that Azure Functions uses is an Azure Storage Account. These accounts can store files, blobs, data in tables or data in queues. You can share one storage account between many apps, such as a Functions app and a web app.
-
-1. Create a folder called `azurite` for Azurite to use to store data:
+1. Open the `soil-moisture-iot` folder in a terminal, and check that you are still logged in to Cloudflare:
 
     ```sh
-    mkdir azurite
+    cd soil-moisture-iot
+    npx wrangler whoami
     ```
 
-1. Run Azurite, passing it this new folder:
+    If you are not logged in, run `npx wrangler login` again.
 
-    ```sh
-    azurite --location azurite --skipApiVersionCheck
+### Task - write the function
+
+The service you wrote in the last lesson accepts telemetry from registered devices. You will now change it so that the reply contains a decision based on the soil moisture. This is the same logic as the server code you wrote before.
+
+1. Open `src/index.js` and add the following line at the beginning of the file to define the watering threshold:
+
+    ```javascript
+    const THRESHOLD = 2047;
     ```
 
-    The Azurite storage emulator will launch and be ready for the local Functions runtime to connect.
+    > 💁 Whether a high value means dry or wet soil depends on your sensor. Use the same comparison you used in the earlier lessons.
 
-    ```output
-    ➜  ~ azurite --location azurite --skipApiVersionCheck 
-    Azurite Blob service is starting at http://127.0.0.1:10000
-    Azurite Blob service is successfully listening at http://127.0.0.1:10000
-    Azurite Queue service is starting at http://127.0.0.1:10001
-    Azurite Queue service is successfully listening at http://127.0.0.1:10001
-    Azurite Table service is starting at http://127.0.0.1:10002
-    Azurite Table service is successfully listening at http://127.0.0.1:10002
+1. Replace the `handleTelemetry` function with the following code:
+
+    ```javascript
+    // A device sends telemetry and receives a command in the reply
+    async function handleTelemetry(request, env) {
+      const deviceId = request.headers.get("x-device-id");
+      const deviceKey = request.headers.get("x-api-key");
+      if (!deviceId || !deviceKey) {
+        return new Response("Unauthorized", { status: 401 });
+      }
+
+      // Only registered devices with the right secret key are accepted
+      const registeredKey = await env.DEVICE_STATE.get(`device:${deviceId}`);
+      if (registeredKey === null || registeredKey !== deviceKey) {
+        return new Response("Unauthorized", { status: 401 });
+      }
+
+      let telemetry;
+      try {
+        telemetry = await request.json();
+      } catch {
+        return new Response("Invalid JSON", { status: 400 });
+      }
+
+      const soilMoisture = telemetry.soil_moisture;
+      if (typeof soilMoisture !== "number") {
+        return new Response("soil_moisture must be a number", { status: 400 });
+      }
+
+      // Decide if the plant needs watering
+      const command = soilMoisture > THRESHOLD ? "relay_on" : "relay_off";
+
+      console.log(JSON.stringify({ device: deviceId, soil_moisture: soilMoisture, command }));
+
+      return Response.json({ command });
+    }
     ```
 
-### Task - create an Azure Functions project
+    The function checks the device, reads the soil moisture and validates it. Then it decides by itself: if the soil moisture is above the threshold it answers `relay_on`, otherwise `relay_off`.
 
-One great feature of Azure Functions is that you can run them locally. The same runtime that is used in the cloud can be run on your computer, allowing you to write code that responds to IoT messages and run it locally. You can even debug your code as events are handled. Once you are happy with your code, it can be deployed to the cloud.
-
-The Azure Functions tooling is available as a CLI, known as the Azure Functions Core Tools.
-
-1. Run the following command in a terminal to create a Functions app folder and all the corresponding files:
-
-    ```sh
-    func init soil-moisture-trigger --python --model V2
-    ```
-
-    This will create four files inside the `soil-moisture-trigger` folder:
-
-    * `host.json` - this JSON document contains settings for your Functions app. You won't need to modify these settings.
-    * `local.settings.json` - this JSON document contains settings your app would use when running locally, such as connection strings for your IoT Hub. These settings are local only, and should not be added to source code control. When you deploy the app to the cloud, these settings are not deployed, instead your settings are loaded from application settings. This will be covered later in this lesson.
-    * `requirements.txt` - this is a [Pip requirements file](https://pip.pypa.io/en/stable/user_guide/#requirements-files) that contains the Pip packages needed to run your Functions app.
-    * `function_app.py` - this is the Python code file that will contain the trigger.
-
-1. In the terminal, navigate to the newly created `soil-moisture-trigger` folder:
-
-    ```sh
-    cd soil-moisture-trigger
-    ```
-
-1. Install the necessary Pip packages using the requirements file:
-
-    ```sh
-    pip3 install -r requirements.txt
-    ```
-
-    > 💁 The required Pip packages need to be in this file, so that when the Functions app is deployed to the cloud, the runtime can ensure it installs the correct packages.
-
-1. To test everything is working correctly, you can start the Functions runtime. Run the following command to do this:
-
-    ```sh
-    func start
-    ```
-
-    You will see the runtime start up and report that it hasn't found any job functions (triggers).
-
-    ```output
-    ...soil-moisture-trigger$ func start
-    Resolving worker runtime to 'python'.
-    Found Python version 3.12.3 (python3).
+    Leave the rest of the file as it was.
     
-    Azure Functions Core Tools
-    Core Tools Version:       4.5.0+e74aae22c9630777c9f58354f290a6e214218546 (64-bit)
-    Function Runtime Version: 4.1044.400.25520
+> 💁 You can find this code in the [code/function](code/function) folder.
 
-    [2025-12-16T11:20:26.682Z] No job functions found.
-    ```
+### Task - test the function on your computer
 
-    > ⚠️ If you get a firewall notification, grant access as the `func` application needs to be able to read and write to your network.
+You can run the service on your computer to test it before you deploy it. The test uses a local copy of the storage, separate from the one in the cloud.
 
-1. Stop the Functions app by pressing `ctrl+c`.
-
-## Create an IoT Hub event trigger
-
-The Functions app is the shell of your serverless code. To respond to IoT hub events, you can add an IoT Hub trigger to this app. This trigger needs to connect to the stream of messages that are sent to the IoT Hub and respond to them. To get this stream of messages, your trigger needs to connect to the IoT Hubs *event hub compatible endpoint*.
-
-IoT Hub is based upon another Azure service called Azure Event Hubs. Event Hubs is a service that allows you to send and receive messages, IoT Hub extends this to add features for IoT devices. The way you connect to read messages off the IoT Hub is the same as you would if you were using Event Hubs.
-
-✅ Do some research: Read the overview of Event Hubs in the [Azure Event Hubs documentation](https://docs.microsoft.com/azure/event-hubs/event-hubs-about?WT.mc_id=academic-17441-jabenn). How do the basic features compare to IoT Hub?
-
-For an IoT device to connect to the IoT Hub, it has to use a secret key that ensures only allowed devices can connect. The same applies when connecting to read off messages, your code will need a connection string that contains a secret key, along with details of the IoT Hub.
-
-> 💁 The default connection string you get has **iothubowner** permissions, which gives any code that uses it full permissions on the IoT Hub. Ideally you should connect with the lowest level of permissions needed. This will be covered in the next lesson.
-
-Once your trigger has connected, the code inside the function will be called for every message sent to the IoT Hub, regardless of which device sent it. The trigger will be passed the message as a parameter.
-
-### Task - get the Event Hub compatible endpoint connection string
-
-1. From the terminal run the following command to get the connection string for the IoT Hubs Event Hub compatible endpoint:
+1. Register a test device in the local storage. Without the `--remote` option, this command writes to the local storage:
 
     ```sh
-    az iot hub connection-string show --default-eventhub \
-                                      --output table \
-                                      --hub-name <hub_name>
+    npx wrangler kv key put --binding=DEVICE_STATE "device:test-device" "my-test-key"
     ```
 
-    Replace `<hub_name>` with the name you used for your IoT Hub.
-
-1. Using any text editor open the `local.settings.json` file. Add the following additional value inside the `Values` section:
-
-    ```json
-    "IOT_HUB_CONNECTION_STRING": "<connection string>"
-    ```
-
-    Replace `<connection string>` with the value from the previous step. You will need to add a comma after the line above to make this valid JSON.
-
-### Task - create an event trigger
-
-You are now ready to create the event trigger code.
-
-1. Using any text editor open the `function_app.py` file and add the following code after `app = func.FunctionApp()` instruction:
-
-    ```python
-    @app.event_hub_message_trigger(
-        arg_name="event",
-        event_hub_name="",
-        connection="IOT_HUB_CONNECTION_STRING"
-    )
-    def process_event(event: func.EventHubEvent):
-        logging.info('Python EventHub trigger processed an event: %s',
-                    event.get_body().decode('utf-8'))
-    ```
-
-### Task - run the event trigger
-
-1. Make sure you are not running the IoT Hub event monitor. If this is running at the same time as the functions app, the functions app will not be able to connect and consume events.
-
-    > 💁 Multiple apps can connect to the IoT Hub endpoints using different *consumer groups*. These are covered in a later lesson.
-
-1. To run the Functions app, run the following command from the terminal
+1. Start the service on your computer:
 
     ```sh
-    func start
+    npx wrangler dev
     ```
 
-    The Functions app will start up, and will discover the `iot-hub-trigger` function. It will then process any events that have already been sent to the IoT Hub in the past day.
+    The service is now running locally at `http://localhost:8787`.
+
+1. From a second terminal, send some telemetry:
+
+    ```sh
+    curl -X POST http://localhost:8787/telemetry \
+         -H "Content-Type: application/json" \
+         -H "x-device-id: test-device" \
+         -H "x-api-key: my-test-key" \
+         -d '{"soil_moisture": 3020}'
+    ```
+
+    You should see:
 
     ```output
-    ...soil-moisture-trigger$ func start
-    Resolving worker runtime to 'python'.
-    Found Python version 3.12.3 (python3).
-
-    Azure Functions Core Tools
-    Core Tools Version:       4.5.0+e74aae22c9630777c9f58354f290a6e214218546 (64-bit)
-    Function Runtime Version: 4.1044.400.25520
-
-    [2025-12-16T11:20:26.682Z] Worker process started and initialized.
-
-    Functions:
-
-	    process_event: eventHubTrigger
-
-    For detailed output, run func with --verbose flag.
-    [2025-12-16T11:20:28.334Z] Executing 'Functions.process_event' (Reason='(null)', Id=f672f44e-3d6b-4ffe-8933-1dd47778b899)
-    [2025-12-16T11:20:28.334Z] Trigger Details: PartitionId: 0, OffsetString: 0, EnqueueTimeUtc: 2025-12-16T11:02:32.0580000+00:00, SequenceNumber: 0, Count: 1, Offset: 0, PartionId: 0
-    [2025-12-16T11:20:28.392Z] Python EventHub trigger processed an event: "{\"soil_moisture\": 21}"
-    [2025-12-16T11:20:28.407Z] Executed 'Functions.process_event' (Succeeded, Id=f672f44e-3d6b-4ffe-8933-1dd47778b899, Duration=96ms)
+    {"command":"relay_on"}
     ```
 
-    Each call to the function will be surrounded by a `Executing 'Functions.process_event'`/`Executed 'Functions..process_event'` block in the output, so you can how many messages were processed in each function call.
+    Try a value below the threshold, and a request with a wrong key, and check the answers.
 
-1. Make sure your IoT device is running, You will see new soil moisture messages appearing in the Functions app.
+1. Press `x` in the terminal to stop the local service.
 
-1. Stop and restart the Functions app. You will see that it won't process previous messages again, it will only process new messages.
+## Deploy your serverless code
 
+At the moment your new code only runs on your computer. Now you will deploy it so that it runs on Cloudflare's network, replacing the version from the last lesson.
 
-## Send direct method requests from serverless code
+### Task - deploy your function
 
-So far your Functions app is listening to messages from the IoT Hub using the Event Hub compatible end point. You now need to send commands to the IoT device. This is done by using a different connection to the IoT Hub via the *Registry Manager*. The Registry Manager is a tool that allows you to see what devices are registered with the IoT Hub, and communicate with those devices by sending cloud to device messages, direct method requests or updating the device twin. You can also use it to register, update or delete IoT devices from the IoT Hub.
-
-To connect to the Registry Manager, you need a connection string.
-
-### Task - get the Registry Manager connection string
-
-1. To get the connection string, run the following command on the terminal:
+1. Deploy the service from the project folder:
 
     ```sh
-    az iot hub connection-string show --policy-name service \
-                                      --output table \
-                                      --hub-name <hub_name>
+    npx wrangler deploy
     ```
 
-    Replace `<hub_name>` with the name you used for your IoT Hub.
+    The address of your service is the same as in the last lesson:
 
-    The connection string is requested for the *ServiceConnect* policy using the `--policy-name service` parameter. When you request a connection string, you can specify what permissions that connection string will allow. The ServiceConnect policy allows your code to connect and send messages to IoT devices.
-
-    ✅ Do some research: Read up on the different policies in the [IoT Hub permissions documentation](https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-security#iot-hub-permissions?WT.mc_id=academic-17441-jabenn)
-
-1. Using any text editor open the `local.settings.json` file. Add the following additional value inside the `Values` section:
-
-    ```json
-    "REGISTRY_MANAGER_CONNECTION_STRING": "<connection string>"
+    ```output
+    https://soil-moisture-iot.<your-subdomain>.workers.dev
     ```
 
-    Replace `<connection string>` with the value from the previous step. You will need to add a comma after the line above to make this valid JSON.
+    The device you registered in the last lesson is kept in the cloud, so you do not need to register it again.
 
-### Task - send a direct method request to a device
-
-1. The SDK for the Registry Manager is available via a Pip package. Add the following line to the `requirements.txt` file to add the dependency on this package:
+1. Test the deployed service with `curl`, using the key of your device from the last lesson:
 
     ```sh
-    azure-iot-hub
+    curl -X POST https://soil-moisture-iot.<your-subdomain>.workers.dev/telemetry \
+         -H "Content-Type: application/json" \
+         -H "x-device-id: soil-moisture-sensor" \
+         -H "x-api-key: <device key>" \
+         -d '{"soil_moisture": 3020}'
     ```
 
-1. Run the following command on the terminal to install the new Pip packages:
+1. If necessary, update the `service_url`, `service_url` and `service_url` values in your ESP32 code, then run it. Your plant is now controlled by code running in the cloud, so you no longer need to keep a computer running.
+
+## HTTP trigger
+
+A function only runs when something triggers it. A Cloudflare Worker is triggered by an **HTTP request**. In your service, the `/telemetry` address is the trigger: your device sends its telemetry as a web request, the function runs, and it answers with a command.
+
+The device sends the telemetry directly to the function over HTTPS. The function runs when the request arrives, makes its decision, and the reply carries the command that the device has to run.
+
+> 💁 Workers can also be triggered by a timer, called a *Cron Trigger*. This is useful for tasks that need to happen on a schedule, such as checking if devices have stopped sending telemetry.
+
+## Send commands back to your device
+
+The function does not need a permanent connection to your device. The command travels **in the reply** to the telemetry request, and the device decides what to do with it.
+
+This design has some consequences:
+
+- The device always starts the communication. It only makes outgoing connections, so it works behind a home router or a firewall without any configuration.
+- The cloud can only deliver a command when the device sends a request.
+
+✅ Think about the consequences. If the soil dries out just after the device has sent its telemetry, when would the plant be watered? How could you reduce this delay?
+
+
+### Task - handle commands on your device
+
+The service now answers every telemetry message with a command, `relay_on` or `relay_off`. Work through the relevant guide to make your device act on it:
+
+- **[Microcontroller ESP32](./esp32-handle-commands.md) <<<<----------**
+
+### Task - monitor your function
+
+1. Watch the log of the deployed service, while your device is sending telemetry:
 
     ```sh
-    pip3 install -r requirements.txt
+    npx wrangler tail
     ```
 
-1. Add the following imports to the `function_app.py` file:
+    You will see each request, including the line written by your code, with the soil moisture and the command.
 
-    ```python
-    import os
-    from azure.iot.hub import IoTHubRegistryManager
-    from azure.iot.hub.models import CloudToDeviceMethod
-    ```
+1. You can also see the number of requests in the Cloudflare dashboard, under *Workers & Pages*.
 
-    This imports some system libraries, as well as the libraries to interact with the Registry Manager and send direct method requests.
+> ⚠️ Keep your device key secret. Anyone who has it can send telemetry as your device, and so decide when your plant is watered. If you share your code, remove the key first, and if it is exposed, register the device again with a new key and update your device.
 
-1. Remove the code from inside the `process_event` method, but keep the method itself.
-
-1. Inside the `process_event` method, add the following code:
-
-    ```python
-    body = json.loads(json.loads(event.get_body().decode('utf-8')))
-    device_id = event.iothub_metadata['connection-device-id']
-
-    logging.info(f'Received message: {body} from {device_id}')
-    ```
-
-    This code extracts the body of the event which contains the JSON message sent by the IoT device.
-
-    It then gets the device ID from the annotations passed with the message. The body of the event contains the message sent as telemetry, the `iothub_metadata` dictionary contains properties set by the IoT Hub such as the device ID of the sender, and the time that the message was sent.
-
-    This information is then logged. You will see this logging in the terminal when you run the Function app locally.
-
-1. Below this, add the following code:
-
-    ```python
-    soil_moisture = body['soil_moisture']
-
-    if soil_moisture > 2047:
-        direct_method = CloudToDeviceMethod(method_name='relay_on', payload='{}')
-    else:
-        direct_method = CloudToDeviceMethod(method_name='relay_off', payload='{}')
-    ```
-
-    This code gets the soil moisture from the message. It then checks the soil moisture, and depending on the value, creates a helper class for the direct method request for the `relay_on` or `relay_off` direct method. The method request doesn't need a payload, so an empty JSON document is sent.
-
-1. Below this add the following code:
-
-    ```python
-    logging.info(f'Sending direct method request for {direct_method.method_name} for device {device_id}')
-
-    registry_manager_connection_string = os.environ['REGISTRY_MANAGER_CONNECTION_STRING']
-    registry_manager = IoTHubRegistryManager(registry_manager_connection_string)
-    ```
-
-    This code loads the `REGISTRY_MANAGER_CONNECTION_STRING` from the `local.settings.json` file. The values in this file are made available as environment variables, and these can be read using the `os.environ` function, a function that returns a dictionary of all the environment variables.
-
-    > 💁 When this code is deployed to the cloud, the values in the `local.settings.json` file will be set as *Application Settings*, and these can be read from environment variables.
-
-    The code then creates an instance of the Registry Manager helper class using the connection string.
-
-1. Below this add the following code:
-
-    ```python
-    registry_manager.invoke_device_method(device_id, direct_method)
-
-    logging.info('Direct method request sent!')
-    ```
-
-    This code tells the registry manager to send the direct method request to the device that sent the telemetry.
-
-    > 💁 In the versions of the app you created in earlier lessons using MQTT, the relay control commands were sent to all devices. The code assumed you would only have one device. This version of the code sends the method request to a single device, so would work if you had multiple setups of moisture sensors and relays, sending the right direct method request to the right device.
-
-1. Run the Functions app, and make sure your IoT device is sending data. You will see the messages being processed and the direct method requests being sent. Move the soil moisture sensor in and out of the soil to see the values change and the relay turn on and off
-
-> 💁 You can find this code in the [code/functions](code/functions) folder.
-
-## Deploy your serverless code to the cloud
-
-Your code is now working locally, so the next step is to deploy the Functions App to the cloud.
-
-### Task - create the cloud resources
-
-Your Functions app needs to be deployed to a Functions App resource in Azure, living inside the Resource Group you created for your IoT Hub. You will also need a Storage Account created in Azure to replace the emulated one you have running locally.
-
-1. Run the following command in the terminal to update the `azure-cli` package:
-
-    ```sh
-    pip3 install azure-cli 
-    ```
-
-1. Run the following command on the terminal to create a storage account:
-
-    ```sh
-    az storage account create --resource-group soil-moisture-sensor \
-                              --sku Standard_LRS \
-                              --name <storage_name> 
-    ```
-
-    Replace `<storage_name>` with a name for your storage account. This will need to be globally unique as it forms part of the URL used to access the storage account. You can only use lower case letters and numbers for this name, no other characters, and it's limited to 24 characters. Use something like `sms` and add a unique identifier on the end, like some random words or your name.
-
-    The `--sku Standard_LRS` selects the pricing tier, selecting the lowest cost general-purpose account. There isn't a free tier of storage, and you pay for what you use. The costs are relatively low, with the most expensive storage at less than US$0.05 per month per gigabyte stored.
-
-    ✅ Read up on pricing on the [Azure Storage Account pricing page](https://azure.microsoft.com/pricing/details/storage/?WT.mc_id=academic-17441-jabenn)
-
-1. Run the following command to create a Function App:
-
-    ```sh
-    az functionapp create --resource-group soil-moisture-sensor \
-                          --runtime python \
-                          --runtime-version 3.12 \
-                          --functions-version 4 \
-                          --flexconsumption-location <location> \
-                          --storage-account <storage_name> \
-                          --name <functions_app_name>
-    ```
-
-    Replace `<location>` with the location you used when creating the Resource Group in the previous lesson.
-
-    Replace `<storage_name>` with the name of the storage account you created in the previous step.
-
-    Replace `<functions_app_name>` with a unique name for your Functions App. This will need to be globally unique as it forms part of a URL that can be used to access the Functions App. Use something like `soil-moisture-sensor-` and add a unique identifier on the end, like some random words or your name.
-
-    The `--functions-version 4` option sets the version of Azure Functions to use.
-
-### Task - upload your application settings
-
-When you developed your Functions App, you stored some settings in the `local.settings.json` file for the connection strings for your IoT Hub. These need to be written to Application Settings in your Function App in Azure so that they can be used by your code.
-
-> 🎓 The `local.settings.json` file is for local development settings only, and these should not be checked into source code control, such as GitHub. When deployed to the cloud, Application Settings are used. Application Settings are key/value pairs hosted in the cloud and are read from environment variables either in your code or by the runtime when connecting your code to IoT Hub.
-
-1. Run the following command to set the `IOT_HUB_CONNECTION_STRING` setting in the Functions App Application Settings:
-
-    ```sh
-    az functionapp config appsettings set --resource-group soil-moisture-sensor \
-                                          --name <functions_app_name> \
-                                          --settings "IOT_HUB_CONNECTION_STRING=<connection string>"
-    ```
-
-    Replace `<functions_app_name>` with the name you used for your Functions App.
-
-    Replace `<connection string>` with the value of `IOT_HUB_CONNECTION_STRING` from your `local.settings.json` file.
-
-1. **Repeat the step above**, but now for the `REGISTRY_MANAGER_CONNECTION_STRING` setting.
-
-When you run these commands, they will also output a list of all the Application Settings for the function app. You can use this to check that your values are set correctly.
-
-> 💁 You will see a value already set for `AzureWebJobsStorage`. In your `local.settings.json` file, this was set to a value to use the local storage emulator. When you created the Functions App, you pass the storage account as a parameter, and this gets set automatically in this setting.
-
-### Task - deploy your Functions App to the cloud
-
-Now that the Functions App is ready, your code can be deployed.
-
-1. Inside the funciton folder run the following command from the terminal to publish your Functions App:
-
-    ```sh
-    func azure functionapp publish <functions_app_name>
-    ```
-
-    Replace `<functions_app_name>` with the name you used for your Functions App.
-
-The code will be packaged up and sent to the Functions App, where it will be deployed and started. There will be a lot of console output, ending in confirmation of the deployment and a list of the functions deployed. In this case the list will only contain the trigger.
-
-```output
-Deployment in progress, please wait...
-Starting deployment pipeline.
-(...)
-Finished deployment pipeline.
-The deployment was successful!
-Functions in soil-moisture-sensor:
-    process_event - [eventHubTrigger]
-```
-
-Make sure your IoT device is running. Change the moisture levels by adjusting the soil moisture, or moving the sensor in and out of the soil. You will see the relay turn on and off as the soil moisture changes.
+> 🗑 When you finish all the lessons of this project, you can remove the service with `npx wrangler delete`, and the store with `npx wrangler kv namespace delete --namespace-id <namespace id>`.
 
 ---
 
 ## 🚀 Challenge
 
-In the previous lesson, you managed timing for the relay by unsubscribing from MQTT messages whilst the relay was on, and for a short while after it was turned off. You can't use this method here - you cannot unsubscribe your IoT Hub trigger.
+The free plan of Cloudflare Workers allows 100,000 requests a day. Your device sends one request every 10 seconds, and waits 20 seconds more when it waters the plant. How many requests a day is this for one device? Each request also reads the store once, to check the device, and the store allows 100,000 reads a day. How many devices can share one account before they reach the limit?
 
-Think about different ways you could handle this in your Functions App.
+Think about how often soil moisture should be measured, and how you could change your code to stay well within the limits. How could you change the threshold without deploying the code again? What would you have to change if you wanted the function to remember when the plant was last watered, so that it doesn't water it again too soon, bearing in mind that the store only allows 1,000 writes a day?
 
 ## Review & Self Study
 
-* Read up on serverless computing on the [Serverless Computing page on Wikipedia](https://wikipedia.org/wiki/Serverless_computing)
-* Read about using serverless in Azure including some more examples on the [Go serverless for your IoT needs Azure blog post](https://azure.microsoft.com/blog/go-serverless-for-your-iot-needs/?WT.mc_id=academic-17441-jabenn)
-* Learn more about Azure Functions on the [Azure Functions YouTube channel](https://www.youtube.com/c/AzureFunctions)
+- Read the [Cloudflare Workers documentation](https://developers.cloudflare.com/workers/) about how Workers run and about secrets.
+- Read about the limits of serverless in the [Cloudflare Workers limits page](https://developers.cloudflare.com/workers/platform/limits/).
+- Read about other serverless platforms, such as [AWS Lambda](https://aws.amazon.com/lambda/) and [Google Cloud Functions](https://cloud.google.com/functions), and compare how a function is triggered in each of them.
 
 ## Assignment
 
-[Add manual relay control](assignment.md)
+[Learn about serverless](./assignment.md)
