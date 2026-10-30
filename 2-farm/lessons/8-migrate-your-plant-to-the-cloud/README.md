@@ -254,7 +254,7 @@ Cloudflare services, such as Workers or KV storage, are referred to as **resourc
 
 ### Task - deploy your IoT service
 
-1. Deploy the service:
+1. Deploy the service to cloudflare:
 
     ```sh
     npx wrangler deploy
