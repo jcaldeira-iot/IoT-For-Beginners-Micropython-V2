@@ -87,6 +87,8 @@ After your device is registered, you can send telemetry to the IoT service and r
 
 ### Task - send telemetry and receive replies
 
+1. Remove the test code you added in the previous task, the three lines that print `Connecting` and `Connected`.
+
 1. Add the following function before the `while True:` loop:
 
     ```python
