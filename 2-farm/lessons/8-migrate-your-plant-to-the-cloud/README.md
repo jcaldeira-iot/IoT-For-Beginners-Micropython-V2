@@ -107,7 +107,7 @@ The cloud services available in Cloudflare can be configured through a web-based
 
 ### Task - install the tools and log in
 
-1. Since *Wrangler** runs on Node.js, make sure Node.js is installed. If it isn't, you can download and install it from [Node.js](https://nodejs.org).
+1. Since *Wrangler* runs on Node.js, make sure Node.js is installed. If it isn't, you can download and install it from [Node.js](https://nodejs.org).
 
     ```sh
     node --version
@@ -143,21 +143,21 @@ The cloud services available in Cloudflare can be configured through a web-based
     cd soil-moisture-iot
     ```
 
-### Task - create a store for your devices
+### Task - create a storage for your device
 
-Cloudflare services, such as Workers or KV stores, are referred to as **resources**. Workers KV is a key-value store, a simple database where you save a value under a name. Your service will use one to keep a list of registered devices, and the commands waiting for them.
+Cloudflare services, such as Workers or KV storage, are referred to as **resources**. Workers KV is a key-value store, a simple database where you save a value under a name. Your service will use one to keep a list of registered devices, and the commands waiting for them.
 
-1. Create the store:
+1. Create the storage:
 
     ```sh
     npx wrangler kv namespace create DEVICE_STATE
     ```
 
-    The output shows the `id` of the new store.
+    The output shows the `id` of the new storage.
     
     Newer versions of Wrangler may offer to add this configuration for you. If prompted, select **yes**, keep the binding name **DEVICE_STATE** and select **no** when asked whether to connect to a remote resource. Once this configuration is complete, you can skip the next step.
 
-1. Connect the store to your Worker. If the store was not added automatically, open `wrangler.jsonc` and add the store, replacing `<namespace id>` with the id from the output:
+1. Connect the storage to your Worker. If the storage was not added automatically, open `wrangler.jsonc` and add the storage, replacing `<namespace id>` with the id from the output:
 
     ```jsonc
     "kv_namespaces": [
@@ -165,7 +165,7 @@ Cloudflare services, such as Workers or KV stores, are referred to as **resource
     ]
     ```
 
-    This makes the store available to your code as `env.DEVICE_STATE`.
+    This makes the storage available to your code as `env.DEVICE_STATE`.
 
 ### Task - write the IoT service
 
