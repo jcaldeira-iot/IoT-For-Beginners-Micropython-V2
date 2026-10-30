@@ -413,6 +413,13 @@ You can also send commands to your IoT device, using an administrator key.
     The service replies with `{"queued":"relay_on"}`. The next time your device sends telemetry, it will receive the command, and you will see the relay turn on and the corresponding output from your IoT device:
 
     ```output
+    >>> %Run -c $EDITOR_CONTENT
+
+    MPY: soft reboot
+    connecting to network...
+    network config: ('10.6.3.163', '255.255.240.0')
+    Sending telemetry  {"soil_moisture": 316}
+    Sending telemetry  {"soil_moisture": 819}
     Command received - relay_on
     ```
 
