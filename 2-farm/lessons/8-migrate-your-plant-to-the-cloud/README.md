@@ -302,7 +302,7 @@ Once the service is deployed, your IoT device can connect to it. Only registered
 
     Take a note of the output, as you will need it later.
 
-1. Register the device in the store of your service, replacing `<device key>` with the key you just generated. Run this from the project folder:
+1. Register the device in the storage of your service, replacing `<device key>` with the key you just generated. Run this from the project folder:
 
     ```sh
     npx wrangler kv key put --binding=DEVICE_STATE --remote \
@@ -311,7 +311,7 @@ Once the service is deployed, your IoT device can connect to it. Only registered
 
     This registers a device with an ID of `soil-moisture-sensor`.
 
-    > 💁 The `--remote` option is important. Without it, the key is saved in a local test store and not in the store of your deployed service.
+    > 💁 The `--remote` option is important. Without it, the key is saved in a local test storage and not in the store of your deployed service.
 
 1. Test that your service accepts the device, by sending a telemetry message with `curl`:
 
