@@ -134,7 +134,7 @@ The cloud services available in Cloudflare can be configured through a web-based
     npm create cloudflare@latest soil-moisture-iot
     ```
 
-	If prompted, install the required packages. When asked, choose the **Hello World** starter, the **Worker only** type and **JavaScript** language. You do not need to add ai agents, do not need to use Git, and you do not need to deploy it yet.
+	If prompted, install the required packages. When asked, choose the **Hello World** starter, the **Worker only** type and **JavaScript** language. You do **not** need to add ai agents, do **not** need to use Git, and you do **not** need to deploy it yet.
 
 1. Open the newly created folder in a terminal. All the following steps assume that you are working inside the Workers project directory:
 
@@ -221,7 +221,7 @@ Cloudflare services, such as Workers or KV storage, are referred to as **resourc
     npx wrangler deploy
     ```
 
-    The first time, Wrangler may ask you to choose a `workers.dev` <subdomain> for your account. The <subdomain> must be unique, so choose a name based on your name or student number. At the end of the output you will see the address of your service, which looks like:
+    The first time, Wrangler may ask you to choose a `workers.dev` `<subdomain>` for your account. The `<subdomain>` must be unique, so choose a name based on your name or student number. At the end of the output you will see the address of your service, which looks like:
 
     ```output
     https://soil-moisture-iot.<your-subdomain>.workers.dev
@@ -283,7 +283,7 @@ Once the service is deployed, your IoT device can connect to it. Only registered
          -d '{"soil_moisture": 3342}'
     ```
 
-	Replace <your-subdomain> with the name you used for your subdomain and <device key> with the value generated for your device key.
+	Replace `<your-subdomain>` with the name you used for your subdomain and `<device key>` with the value generated for your device key.
 
     You should see:
 
