@@ -121,7 +121,7 @@ The service you wrote in the last lesson accepts telemetry from registered devic
 
     Leave the rest of the file as it was.
     
-> 💁 You can find this code in the [code/function](code/function) folder.
+> 💁 You can find this code in the [code/worker](code/worker) folder.
 
 ### Task - test the function on your computer
 
@@ -217,7 +217,7 @@ This design has some consequences:
 
 The service now answers every telemetry message with a command, `relay_on` or `relay_off`. Work through the relevant guide to make your device act on it:
 
-- **[Microcontroller ESP32](./esp32-handle-commands.md) <<<<----------**
+- **[Microcontroller ESP32](esp32-handle-commands.md) <<<<----------**
 
 ### Task - monitor your function
 
@@ -245,10 +245,6 @@ Think about how often soil moisture should be measured, and how you could change
 
 ## Review & Self Study
 
-- Read the [Cloudflare Workers documentation](https://developers.cloudflare.com/workers/) about how Workers run and about secrets.
-- Read about the limits of serverless in the [Cloudflare Workers limits page](https://developers.cloudflare.com/workers/platform/limits/).
-- Read about other serverless platforms, such as [AWS Lambda](https://aws.amazon.com/lambda/) and [Google Cloud Functions](https://cloud.google.com/functions), and compare how a function is triggered in each of them.
-
-## Assignment
-
-[Learn about serverless](./assignment.md)
+* Read the [Cloudflare Workers documentation](https://developers.cloudflare.com/workers/) about how Workers run and about secrets.
+* Read about the limits of serverless in the [Cloudflare Workers limits page](https://developers.cloudflare.com/workers/platform/limits/).
+* Read about other serverless platforms, such as [AWS Lambda](https://aws.amazon.com/lambda/) and [Google Cloud Functions](https://cloud.google.com/functions), and compare how a function is triggered in each of them.

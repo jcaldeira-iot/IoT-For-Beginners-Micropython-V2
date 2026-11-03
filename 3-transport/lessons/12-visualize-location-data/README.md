@@ -6,13 +6,13 @@
 
 ## Introduction
 
-In the last lesson you learned how to get GPS data from your sensors to save to the cloud in a storage container using serverless code. Now you will discover how to visualize those points on a map. You will learn how to create a map on a web page using the open source Leaflet library and OpenStreetMap tiles, learn about the GeoJSON data format and how to use it to plot all the captured GPS points on your map.
+In the last lesson you learned how to get GPS data from your sensors to save to the cloud in a storage namespace using serverless code. Now you will discover how to visualize those points on a map. You will learn how to create a map on a web page, learn about the GeoJSON data format and how to use it to plot all the captured GPS points on your map.
 
 In this lesson we'll cover:
 
 * [What is data visualization](#what-is-data-visualization)
 * [Map services](#map-services)
-* [Set up Leaflet and OpenStreetMap](#set-up-leaflet-and-openstreetmap)
+* [Prepare to use OpenStreetMap](#prepare-to-use-openstreetmap)
 * [Show a map on a web page](#show-a-map-on-a-web-page)
 * [The GeoJSON format](#the-geojson-format)
 * [Plot GPS data on a Map using GeoJSON](#plot-gps-data-on-a-map-using-geojson)
@@ -26,31 +26,31 @@ Data visualization, as the name suggests, is about visualizing data in ways that
 Taking a simple example - back in the farm project you captured soil moisture settings. A table of soil moisture data captured every hour for the 1st June 2021 might be something like the following:
 
 | Date             | Reading |
-| ---------------- | ------: |
-| 01/06/2021 00:00 |     257 |
-| 01/06/2021 01:00 |     268 |
-| 01/06/2021 02:00 |     295 |
-| 01/06/2021 03:00 |     305 |
-| 01/06/2021 04:00 |     325 |
-| 01/06/2021 05:00 |     359 |
-| 01/06/2021 06:00 |     398 |
-| 01/06/2021 07:00 |     410 |
-| 01/06/2021 08:00 |     429 |
-| 01/06/2021 09:00 |     451 |
-| 01/06/2021 10:00 |     460 |
-| 01/06/2021 11:00 |     452 |
-| 01/06/2021 12:00 |     420 |
-| 01/06/2021 13:00 |     408 |
-| 01/06/2021 14:00 |     431 |
-| 01/06/2021 15:00 |     462 |
-| 01/06/2021 16:00 |     432 |
-| 01/06/2021 17:00 |     402 |
-| 01/06/2021 18:00 |     387 |
-| 01/06/2021 19:00 |     360 |
-| 01/06/2021 20:00 |     358 |
-| 01/06/2021 21:00 |     354 |
-| 01/06/2021 22:00 |     356 |
-| 01/06/2021 23:00 |     362 |
+| ---------------- | ------- |
+| 01/06/2021 00:00 | 257     |
+| 01/06/2021 01:00 | 268     |
+| 01/06/2021 02:00 | 295     |
+| 01/06/2021 03:00 | 305     |
+| 01/06/2021 04:00 | 325     |
+| 01/06/2021 05:00 | 359     |
+| 01/06/2021 06:00 | 398     |
+| 01/06/2021 07:00 | 410     |
+| 01/06/2021 08:00 | 429     |
+| 01/06/2021 09:00 | 451     |
+| 01/06/2021 10:00 | 460     |
+| 01/06/2021 11:00 | 452     |
+| 01/06/2021 12:00 | 420     |
+| 01/06/2021 13:00 | 408     |
+| 01/06/2021 14:00 | 431     |
+| 01/06/2021 15:00 | 462     |
+| 01/06/2021 16:00 | 432     |
+| 01/06/2021 17:00 | 402     |
+| 01/06/2021 18:00 | 387     |
+| 01/06/2021 19:00 | 360     |
+| 01/06/2021 20:00 | 358     |
+| 01/06/2021 21:00 | 354     |
+| 01/06/2021 22:00 | 356     |
+| 01/06/2021 23:00 | 362     |
 
 As a human, understanding that data can be hard. It's a wall of numbers without any meaning. As a first step to visualizing this data, it can be plotted on a line chart:
 
@@ -66,34 +66,35 @@ Charts are not the only tool to visualize data. IoT devices that track weather c
 
 ✅ Think about ways you've seen data visualized. Which methods have been the clearest and have allowed you to make decisions fastest?
 
-The best visualizations allow humans to humans to make decisions quickly. For example, having a wall of gauges showing all manner of readings from industrial machinery is hard to process, but a flashing red light when something goes wrong allows a human to make a decision. Sometimes the best visualization is a flashing light!
+The best visualizations allow humans to make decisions quickly. For example, having a wall of gauges showing all manner of readings from industrial machinery is hard to process, but a flashing red light when something goes wrong allows a human to make a decision. Sometimes the best visualization is a flashing light!
 
 When working with GPS data, the clearest visualization can be to plot the data on a map. A map showing delivery trucks for example, can help workers at a processing plant see when trucks will arrive. If this map shows more that just pictures of trucks at their current locations, but gives an idea of the contents of a truck, then the workers at the plant can plan accordingly - if they see a refrigerated truck close by they know to prepare space in a fridge.
 
 ## Map services
 
-Working with maps is an interesting exercise, and there are many to choose from such as Bing Maps, Azure Maps, Leaflet, OpenStreetMap, and Google Maps. In this lesson, you will learn about [Leaflet](https://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org) and how they can display your GPS data.
+Working with maps is an interesting exercise, and there are many to choose from such as Bing Maps, Leaflet, Open Street Maps, and Google Maps. In this lesson, you will learn about [OpenStreetMap](https://www.openstreetmap.org) and the [Leaflet](https://leafletjs.com) library, and how they can display your GPS data. Neither of them needs an account, a credit card or an API key.
 
-**OpenStreetMap** is a free, community-built map of the world. Its map images (called *tiles*) can be loaded without an account or an API key. **Leaflet** is a lightweight, open source JavaScript library that downloads those tiles, draws them on a web page and lets you add markers, lines, polygons and more on top.
+OpenStreetMap is "a free, editable map of the whole world" that is built by a community of volunteers. The map data is open, and anyone can use it, as long as they say where it comes from. Maps on a web page are not drawn as one big picture. They are made of many small square images, called *tiles*, that are loaded from a *tile server* for the part of the world and the zoom level that you are looking at. OpenStreetMap runs a tile server for its map that you can use for learning and small projects.
 
-> 💁 Both these tools are free and need no subscription. Azure Maps is a good alternative for production solutions that need features such as traffic, routing and search with an SLA. The GeoJSON you create in this lesson works with both.
+Leaflet is an open source JavaScript library for interactive maps. It is small, simple to use, and takes care of loading the tiles, zooming and dragging the map, and drawing things on top of it. Developers use it to create maps that can show markers, lines, polygons and pop-up windows with information. You can control the behavior and look of your maps by choosing which tiles to display and by adding layers on top of them, such as circles for points.
 
-You can control the behavior and look of your maps by enabling various controls to allow the map to react to events like pinch, drag, and click. To control the look of your map, you can add layers that include markers, lines, polygons, and more.
+✅ Experiment with some of the examples in the [Leaflet quick start guide](https://leafletjs.com/examples/quick-start/)
+
+You can display the maps with tiles from different providers, such as street maps, satellite images, or maps with shaded relief to show elevation. Which style of map you display depends on the tile server that you choose.
 
 In this lesson, you will use Leaflet to draw a map and display your sensor's GPS location's path.
 
-> ⚠️ OpenStreetMap tiles are free for light use, such as development and teaching. The [tile usage policy](https://operations.osmfoundation.org/policies/tiles/) forbids heavy traffic, and you must always show the attribution *© OpenStreetMap contributors* on the map. The code in this lesson does both.
+## Prepare to use OpenStreetMap
 
-## Set up Leaflet and OpenStreetMap
+Unlike many map services, there is nothing to create or sign up for. You do not need a map account or a key. Before you start, you need to know the rules for using the free OpenStreetMap tiles.
 
-### Task - check that you can reach the map libraries
+### Task - check the tile usage rules
 
-1. Open the following addresses in your browser and confirm that each one loads (a block of code, or a small map tile image):
+1. Read the [OpenStreetMap tile usage policy](https://operations.osmfoundation.org/policies/tiles/). The main points are:
 
-    - `https://unpkg.com/leaflet@1.9.4/dist/leaflet.js`
-    - `https://tile.openstreetmap.org/0/0/0.png`
-
-    If either one is blocked, your network may be filtering it.
+    * The tile servers are run by volunteers, so they should be used with care. They are fine for learning and small projects such as this one, but not for heavy use.
+    * Your map must show where the data comes from. Leaflet makes this easy with an *attribution* line, which you will add to your map.
+    * Your web page must be served from a web address, with a normal browser request. As you will see in the next section, this has an effect on how you open your web page.
 
 ## Show a map on a web page
 
@@ -107,20 +108,21 @@ Now you can take the next step which is to display your map on a web page. We wi
     <html>
     <head>
         <style>
-            #myMap {
-                width:100%;
-                height:100%;
+            html, body, #myMap {
+                width: 100%;
+                height: 100%;
+                margin: 0;
             }
         </style>
     </head>
-    
+
     <body onload="init()">
         <div id="myMap"></div>
     </body>
     </html>
     ```
 
-    The map will load in the `myMap` `div`.  A few styles allow it to span the width and height of the page.
+    The map will load in the `myMap` `div`. A few styles allow it to span the width and height of the page.
 
     > 🎓 a `div` is a section of a web page that can be named and styled.
 
@@ -135,32 +137,49 @@ Now you can take the next step which is to display your map on a web page. We wi
 
 1. Under that script, add a script block to launch the map.
 
-    ```javascript
+    ```html
     <script>
         async function init() {
             const center = [39.81556, -7.48182];
             const map = L.map('myMap').setView(center, 14);
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
+                referrerPolicy: 'strict-origin-when-cross-origin',
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
         }
     </script>
     ```
 
-1. If you open your `index.html` page in a web browser, you should see a map loaded, and focused on the `center` coordinates.
+    The first line creates the map in the `myMap` `div`, and `setView` gives the center of the map, as `[latitude, longitude]`, and the zoom level. The next lines add a layer with the OpenStreetMap tiles, and the attribution that the tile usage policy asks for.
 
-    ![A map showing Seattle, a city in Washington State, USA](../../../images/map-image.png)
+    If you try to open your `index.html` page directly in a web browser, OpenStreetMap tile servers may refuse to serve tiles to a page loaded from a local file. A better way to run web applications locally is to install [http-server](https://www.npmjs.com/package/http-server). You will need [node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed before using this tool.
+
+1. In the terminal, install `http-serverì using the following command:
+
+	```sh
+    npm install http-server
+    ```
+
+1.  In the terminal, navigate to the folder containing `index.html` and run http-server:
+
+    ```sh
+    npx http-server
+    ```
+    
+    Open the web app in your browser at the local web server address: **http://127.0.0.1:8080/**
+    
+    Now you should see a map loaded, and focused on the center coordinates.
+    
+    ![A map showing the area of the center coordinates](../../../images/map-image.png)
 
     ✅ Experiment with the zoom and center parameters to change your map display. You can add different coordinates corresponding to your data's latitude and longitude to re-center the map.
 
-   > ⚠️ Leaflet uses `[latitude, longitude]` order, so the center in this code is `[39.81556, -7.48182]`.
-
-> 💁 A better way to work with web apps locally is to install [http-server](https://www.npmjs.com/package/http-server). You will need [node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed before using this tool. Once those tools are installed, you can navigate to the location of your `index.html` file and type `http-server`. The web app will open on a local webserver [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
+    > ⚠️ Notice the order of the center coordinates. Leaflet takes `[latitude, longitude]`. In the next section you will see a format that uses the opposite order.
 
 ## The GeoJSON format
 
-Now that you have your web app in place with the map displaying, you need to extract GPS data from your storage account and display it in a layer of markers on top of the map. Before we do that, let's look at the [GeoJSON](https://wikipedia.org/wiki/GeoJSON) format, which Leaflet can read directly.
+Now that you have your web app in place with the map displaying, you need to extract GPS data from your storage and display it in a layer of markers on top of the map. Before we do that, let's look at the [GeoJSON](https://wikipedia.org/wiki/GeoJSON) format that your IoT service will return, and that Leaflet can draw.
 
 [GeoJSON](https://geojson.org/) is an open standard JSON specification with special formatting designed to handle geographic-specific data. You can learn about it by testing sample data using [geojson.io](https://geojson.io), which is also a useful tool to debug GeoJSON files.
 
@@ -175,8 +194,8 @@ Sample GeoJSON data looks like this:
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -7.48182,
-          39.81556
+          -2.10237979888916,
+          57.164918677004714
         ]
       }
     }
@@ -190,138 +209,150 @@ Of particular interest is the way the data is nested as a `Feature` within a `Fe
 
 `Geometry` can have different types, such as a single point or a polygon. In this example, it is a point with two coordinates specified, the longitude, and the latitude.
 
-✅ Leaflet's `L.geoJSON` function reads standard GeoJSON and swaps the coordinates into the `[lat, lon]` order that the rest of Leaflet uses, so you only have to follow the GeoJSON rule when you build your data.
+✅ Leaflet understands standard GeoJSON, and can draw points, lines and polygons from it. A `Feature` can also have `properties`, extra information such as a time or a name, that you can show on the map.
 
 ## Plot GPS data on a Map using GeoJSON
 
-Now you are ready to consume data from the storage that you built in the previous lesson. As a reminder, it is stored as a number of files in blob storage so you will need to retrieve the files and parse them so that Leaflet can use the data.
+Now you are ready to consume data from the storage that you built in the previous lesson. As a reminder, it is stored as a number of keys in a KV namespace, so you will need to retrieve the data and convert it, so that the map can use it.
 
-### Task - configure storage to be accessed from a web page
+A web page cannot read your KV namespace directly. Instead, your IoT service will read the readings of a device from storage, and answer with them as one GeoJSON document that the web page can load.
 
-If you make a call to your storage to fetch the data you might be surprised to see errors occurring in your browser's console. That's because you need to set permissions for [CORS](https://developer.mozilla.org/docs/Web/HTTP/CORS) on this storage to allow external web apps to read its data.
+### Task - add an address to your IoT service to read the GPS data
 
-> 🎓 CORS stands for "Cross-Origin Resource Sharing" and usually needs to be set explicitly in Azure for security reasons. It stops sites you don't expect from being able to access your data.
+1. Open the `gps-sensor-iot` project from the last lesson in a terminal.
 
-1. First, get the storage account key by running the following command:
+1. In `src/index.js`, replace the `fetch` function at the top of the file with the following code, which adds a new address, `/gps/<device id>`:
 
-   ```sh
-   az storage account keys list --output table \
-                                --account-name <storage_name>
-   ```
+    ```javascript
+    export default {
+      async fetch(request, env) {
+        const url = new URL(request.url);
 
-   Replace `<storage_name>` with the name of the storage account.
+        if (request.method === "POST" && url.pathname === "/telemetry") {
+          return handleTelemetry(request, env);
+        }
 
-   Copy the value of `key1`.
+        const gpsMatch = url.pathname.match(/^\/gps\/([^/]+)$/);
+        if (request.method === "GET" && gpsMatch) {
+          return handleGps(decodeURIComponent(gpsMatch[1]), env);
+        }
 
-1. Run the following command to enable CORS:
+        return new Response("Not found", { status: 404 });
+      },
+    };
+    ```
+
+1. Add the following code at the end of the file:
+
+    ```javascript
+    // A web page asks for the most recent GPS readings of a device
+    const MAX_POINTS = 40;
+
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+    };
+
+    async function handleGps(deviceId, env) {
+      // The keys start with the time, so they are listed oldest first
+      const list = await env.GPS_DATA.list({ prefix: `${deviceId}/` });
+      const keys = list.keys.slice(-MAX_POINTS);
+
+      const readings = await Promise.all(
+        keys.map((key) => env.GPS_DATA.get(key.name, "json"))
+      );
+
+      const features = readings
+        .filter((reading) => reading && reading.gps)
+        .map((reading) => ({
+          type: "Feature",
+          properties: {
+            device_id: reading.device_id,
+            timestamp: reading.timestamp,
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [reading.gps.lon, reading.gps.lat],
+          },
+        }));
+
+      return Response.json(
+        { type: "FeatureCollection", features },
+        { headers: corsHeaders }
+      );
+    }
+    ```
+
+    This code lists the keys of the device, using the device ID as the prefix, and keeps the most recent ones. It reads each document, and builds a GeoJSON `FeatureCollection` with a `Point` feature for each reading. The coordinates are in the order GeoJSON expects, `[longitude, latitude]`. The time of each reading is kept as a property.
+
+    > 💁 The number of points is limited, because a Worker can only make a limited number of storage requests each time it runs, and because the free plan has daily limits for storage reads. Listing keys also counts towards the same daily limit as writing them. Check the limits on the [Cloudflare Workers pricing page](https://developers.cloudflare.com/workers/platform/pricing/).
+
+1. If you load a web page from a different address than your IoT service, the browser may stop the page from reading the data and show an error in its console. That is why the response has the `corsHeaders`.
+
+    > 🎓 CORS stands for "Cross-Origin Resource Sharing". Browsers stop a web page from reading data from another address, unless that address says that it is allowed, to stop sites you don't expect from getting access to your data. The `Access-Control-Allow-Origin` header with `*` means that any website is allowed to read the response. The `Access-Control-Allow-Methods` header says that only `GET` requests, that is getting data, are allowed.
+
+> 💁 You can find this code in the [code/worker](code/worker) folder.
+
+1. Deploy the updated service:
 
     ```sh
-    az storage cors add --methods GET \
-                        --origins "*" \
-                        --services b \
-                        --account-name <storage_name> \
-                        --account-key <key1>
+    npx wrangler deploy
     ```
 
-    Replace `<storage_name>` with the name of your storage account. Replace `<key1>` with the account key for your storage account.
+1. Check the new address in your browser, replacing `<your-subdomain>` with the one of your service. Make sure your device has sent some GPS data first:
 
-    This command allows any website (the wildcard `*` means any) to make a *GET* request, that is get data, from your storage account. The `--services b` means only apply this setting for blobs.
-
-### Task - load the GPS data from storage
-
-1. Replace the entire contents of the `<script>` with the `init` function in `index.html` file with the following code. The map code from the previous task is kept, and the code that loads the blobs is added below it:
-
-    ```javascript
-    const containerUrl = "https://<storage_name>.blob.core.windows.net/gps-data/";
-
-    async function init() {
-        // The map, as before
-        const center = [39.81556, -7.48182];
-        const map = L.map('myMap').setView(center, 14);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-
-        // The GPS data
-        const blobUrls = await listBlobs();
-        console.log("Blobs found:", blobUrls.length);
-
-        const features = await readFeatures(blobUrls);
-        console.log("Valid points:", features.length);
-
-        // Draw every GeoJSON point as a circle on the map
-        const layer = L.geoJSON(
-            { type: "FeatureCollection", features: features },
-            { pointToLayer: (feature, latlng) => L.circleMarker(latlng, { radius: 6 }) }
-        ).addTo(map);
-
-        if (features.length > 0) {
-            map.fitBounds(layer.getBounds(), { maxZoom: 17 });
-        }
-    }
+    ```output
+    https://gps-sensor-iot.<your-subdomain>.workers.dev/gps/gps-sensor
     ```
 
-    Replace `<storage_name>` with the name of your storage account.
+    You will see a GeoJSON document with a feature for each reading.
 
-    The code builds the map, fetches the list of blobs, loads each one and converts it to GeoJSON, then adds all the points to the map in a single layer. The `console.log` lines help you find problems: open your browser's developer tools (press `F12`) and look at the *Console* tab.
+    > ⚠️ This address does not need a key, so anyone who knows it can see the positions of your device. This is fine for the sample data of this lesson, but not for a real vehicle.
 
-1. Add the `listBlobs` and `readFeatures` functions to your script block in `index.html` file, below the `init` function:
+### Task - load the GPS data from the service
+
+1. Inside the `init` function in `index.html` file add the following code immediately after the `}).addTo(map)` statement:
 
     ```javascript
-    async function listBlobs() {
-        const xml = await fetch(containerUrl + "?restype=container&comp=list")
-            .then(response => response.text())
-            .then(str => new window.DOMParser().parseFromString(str, "text/xml"));
-        return Array.from(xml.querySelectorAll("Url")).map(url => url.textContent);
-    }
+    fetch("https://gps-sensor-iot.<your-subdomain>.workers.dev/gps/gps-sensor")
+        .then(response => response.json())
+        .then(geojson => {
+            var layer = L.geoJSON(geojson, {
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, { radius: 6 });
+                }
+            }).addTo(map);
 
-    async function readFeatures(urls) {
-        const features = await Promise.all(urls.map(async url => {
-            try {
-                const gps = (await (await fetch(url)).json()).gps;
-                const lon = parseFloat(gps.lon);
-                const lat = parseFloat(gps.lat);
-                if (isNaN(lon) || isNaN(lat)) return null;
-
-                // GeoJSON order is [longitude, latitude]
-                return {
-                    type: "Feature",
-                    geometry: { type: "Point", coordinates: [lon, lat] }
-                };
-            } catch (e) {
-                console.warn("Could not read", url, e);
-                return null;
+            if (geojson.features.length > 0) {
+                map.fitBounds(layer.getBounds());
             }
-        }));
-        return features.filter(feature => feature !== null);
-    }    
+        });
     ```
 
-    `listBlobs` calls the storage container with `restype=container&comp=list`, which returns information about all the blobs. This list won't return the blobs themselves, but will return a `Url` for each blob that can be used to load the blob data.
+    Replace `<your-subdomain>` with the one of your IoT service.
 
-    > 💁 You can put the container URL into your browser to see details of all the blobs in your container. Each item will have a `Url` property that you can also load in your browser to see the contents of the blob.
+    There are several things happening here. First, the code creates the map and adds the OpenStreetMap tiles, as before. Then it fetches your GPS data from the new address of your IoT service. The service answers with a GeoJSON document, which Leaflet draws as a layer: a set of circles on the map centered over each point in the GeoJSON. Finally, the map moves and zooms so that all the points are visible.
 
-    `readFeatures` loads all the blobs at the same time, and waits until every one has finished before returning. This is important: if the map were drawn before the data had arrived, some or all of the points would be missing. Each blob is converted to a GeoJSON `Feature`, with the coordinates in `[lon, lat]` order, and any blob that can't be read is skipped.
+    > 💁 You can put the address of the service into your browser to see the GeoJSON that it returns. Each item will have the coordinates and the time of one reading.
 
-1. Load the HTML page in your browser. It will load the map, then load all the GPS data from storage and plot it on the map.
+    The service already combines all the readings into one GeoJSON document, so the web page does not need any extra code to load and convert them.
+    
+> 💁 You can find this code in the [code/webapp](code/webapp) folder.
 
-    ![A map of Saint Edward State Park near Seattle, with circles showing a path around the edge of the park](../../../images/map-path.png)
+1. Load the HTML page in your browser, using `http-server`. It will load the map, then load all the GPS data from your IoT service and plot it on the map.
 
-> 💁 You can find this code in the [code](./code) folder.
+    ![A map with circles showing a path of GPS readings](../../../images/map-path.png)
 
 ---
 
 ## 🚀 Challenge
 
-It's nice to be able to display static data on a map as markers. Can you enhance this web app to show the path of the markers over time, using the timestamped json files? Hint: sort the points by their timestamp and draw them as a line with `L.polyline`. To go further, look at the animated marker examples in the [Leaflet plugins list](https://leafletjs.com/plugins.html).
+It's nice to be able to display static data on a map as markers. Can you enhance this web app to add animation and show the path of the markers over time, using the timestamps of the readings? Research how to animate markers or draw a line between the points with Leaflet.
+
+The address of your service shows the positions to anyone who knows it. What would you change, in the service and in the web page, so that only people with a key can see them?
 
 ## Review & Self Study
 
-* Learn more about the library in the [Leaflet quick start guide](https://leafletjs.com/examples/quick-start/).
-* See how Leaflet handles GeoJSON in the [Using GeoJSON with Leaflet tutorial](https://leafletjs.com/examples/geojson/).
-* If you want to try a commercial mapping service later, Azure Maps is particularly useful for working with IoT devices. Research some of the uses in the [Azure Maps documentation on Microsoft docs](https://docs.microsoft.com/azure/azure-maps/tutorial-iot-hub-maps?WT.mc_id=academic-17441-jabenn).
-
-## Assignment
-
-[Deploy your app](assignment.md)
+* Learn more about how to build maps with the [Leaflet documentation](https://leafletjs.com/reference.html) and the [Leaflet quick start guide](https://leafletjs.com/examples/quick-start/).
+* Read about the map data and the tiles in the [OpenStreetMap documentation](https://wiki.openstreetmap.org/wiki/Main_Page), and about GeoJSON in the [GeoJSON specification](https://geojson.org/).
+* Read about the layers that Leaflet can draw from GeoJSON in the [Leaflet GeoJSON example](https://leafletjs.com/examples/geojson/).

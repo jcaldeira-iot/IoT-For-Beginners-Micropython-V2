@@ -13,10 +13,10 @@ In this lesson you will learn about the different ways to store IoT data, and le
 In this lesson we'll cover:
 
 * [Structured and unstructured data](#structured-and-unstructured-data)
-* [Send GPS data to an IoT Hub](#send-gps-data-to-an-iot-hub)
+* [Send GPS data to an IoT service](#send-gps-data-to-an-iot-service)
 * [Hot, warm, and cold paths](#hot-warm-and-cold-paths)
 * [Handle GPS events using serverless code](#handle-gps-events-using-serverless-code)
-* [Azure Storage Accounts](#azure-storage-accounts)
+* [Cloud storage options](#cloud-storage-options)
 * [Connect your serverless code to storage](#connect-your-serverless-code-to-storage)
 
 ## Structured and unstructured data
@@ -24,7 +24,6 @@ In this lesson we'll cover:
 Computer systems deal with data, and this data comes in all manner of different shapes and sizes. It can vary from single numbers, to large amounts of text, to videos and images, and to IoT data. Data can usually be divided into one of two categories - *structured* data and *unstructured* data.
 
 * **Structured data** is data with a well-defined, rigid structure that doesn't change and usually maps to tables of data with relationships. One example is a persons details including their name, date of birth and address.
-
 * **Unstructured data** is data without a well-defined, rigid structure, including data that can change structure frequently. One example is documents such as written documents or spreadsheets.
 
 ✅ Do some research: Can you think of some other examples of structured and unstructured data?
@@ -61,7 +60,7 @@ SQL databases are ideal for storing structured data, and for when you want to en
 
 ✅ If you haven't used SQL before, take a moment to read up on it on the [SQL page on Wikipedia](https://wikipedia.org/wiki/SQL).
 
-Some well known SQL databases are Microsoft SQL Server, MySQL, and PostgreSQL.
+Some well known SQL databases are MySQL, PostgreSQL and SQLite.
 
 ✅ Do some research: Read up on some of these SQL databases and their capabilities.
 
@@ -75,45 +74,57 @@ NoSQL databases are called NoSQL because they don't have the same rigid structur
 
 NoSQL database do not have a pre-defined schema that limits how data is stored, instead you can insert any unstructured data, usually using JSON documents. These documents can be organized into folders, similar to files on your computer. Each document can have different fields from other documents - for example if you were storing IoT data from your farm vehicles, some may have fields for accelerometer and speed data, others may have fields for the temperature in the trailer. If you were to add a new truck type, such as one with built in scales to track the weight of produce carried, then your IoT device could add this new field and it could be stored without any changes to the database.
 
-Some well known NoSQL databases include Azure CosmosDB, MongoDB, and CouchDB.
+Some well known NoSQL databases include MongoDB, CouchDB and key-value stores such as Redis.
 
 ✅ Do some research: Read up on some of these NoSQL databases and their capabilities.
 
 In this lesson, you will be using NoSQL storage to store IoT data.
 
-## Send GPS data to an IoT Hub
+## Send GPS data to an IoT service
 
-In the last lesson you captured GPS data from a GPS sensor connected to your IoT device. To store this IoT data in the cloud, you need to send it to an IoT service. Once again, you will be using Azure IoT Hub, the same IoT cloud service you used in the previous project.
+In the last lesson you captured GPS data from a GPS sensor connected to your IoT device. To store this IoT data in the cloud, you need to send it to an IoT service. Once again, you will be using the kind of IoT service you built in the previous project: a serverless service on Cloudflare Workers, with a Workers KV storage that keeps the list of registered devices.
 
-![Sending GPS telemetry from an IoT device to IoT Hub](../../../images/gps-telemetry-iot-hub.png)
+![Sending GPS telemetry from an IoT device to the IoT service](../../../images/gps-telemetry-iot-service.png)
 
-### Task - create an IoT Hub and register an IoT device
+### Task - Create and deploy an IoT service and register an IoT device
 
-1. Create a new IoT Hub using the free tier.
+1. Create a new IoT service with its own Worker project and device storage, then deploy it.
 
-    > ⚠️ You can refer to the [instructions for creating an IoT Hub from project 2, lesson 8](../../../2-farm/lessons/8-migrate-your-plant-to-the-cloud/README.md#create-an-iot-service-in-the-cloud) if needed.
+    > ⚠️ You can refer to the [instructions for creating an IoT service from project 2, lesson 8](../../../2-farm/lessons/8-migrate-your-plant-to-the-cloud/README.md#create-an-iot-service-in-the-cloud) if needed.
 
-    Remember to create a new Resource Group. Name the new Resource Group `gps-sensor`, and the new IoT Hub a unique name based on `gps-sensor`, such as `gps-sensor-<your name>`.
+    Name the new project `gps-sensor-iot` and the device storage binding `DEVICE_STATE`, , as in lesson 8. Reuse the IoT service code from Lesson 8 and deploy it to Cloudflare.
 
-    > 💁 If you still have your IoT Hub from the previous project, you can re-use it. Remember to use the name of this IoT Hub and the Resource Group it is in when creating other services.
+1. Register a new device to the IoT service. Call this device `gps-sensor`, and take a note of the secret key you create for the device.
 
-1. Register a new device to the IoT Hub. Call this device `gps-sensor`. Grab the SAS token for the device.
+    > ⚠️ You can refer to the [instructions for registering a device from project 2, lesson 8](../../../2-farm/lessons/8-migrate-your-plant-to-the-cloud/README.md#task---register-your-iot-device) if needed.
 
-### Task - send GPS data to an IoT Hub
+### Task - send GPS data to an IoT service
 
-Work through the relevant steps to send the GPS data to the IoT Hub:
+Work through the relevant steps to send the GPS data to the IoT service. The device sends the same kind of request as in the previous project, but the body contains the GPS reading:
 
-* **[Microcontroller ESP32](esp32-connect-hub.md) <<<<----------**
+| | |
+|---|---|
+| Address | `https://gps-sensor-iot.<your-subdomain>.workers.dev/telemetry` |
+| Method | `POST` |
+| Headers | `Content-Type: application/json`, `x-device-id: gps-sensor`, `x-api-key: <device key>` |
+| Body | `{"gps": {"lat": 47.73481, "lon": -122.25701}}` |
+
+- **[Microcontroller ESP32](esp32-connect-cloud.md) <<<<----------**
 
 ### Task - monitor events
 
-1. Run your device code and ensure messages are flowing into IoT Hub using the `az iot hub monitor-events` CLI command:
+1. Run your device code and ensure messages are flowing into your IoT service using Wrangler to monitor the log of the service:
 
     ```sh
-    az iot hub monitor-events --hub-name <hub_name>
+    npx wrangler tail
     ```
 
-    Replace `<hub_name>` with the name you used for your IoT Hub.
+    Run this command from the `gps-sensor-iot` project folder. You will see the GPS telemetry appear in the console output as it is sent by your IoT device.
+
+    ```output
+    POST https://gps-sensor-iot.<your-subdomain>.workers.dev/telemetry - Ok
+      (log) {"device":"gps-sensor","telemetry":{"gps":{"lat":39.81556,"lon":-7.48182}}}
+    ```
 
 ## Hot, warm, and cold paths
 
@@ -133,7 +144,7 @@ Warm path data is stored once it is received by the cloud service inside some ki
 
 ### Cold path
 
-THe cold path refers to historic data, storing data for the long term to be processed whenever needed. For example, you could use the cold path to get annual mileage reports for vehicles, or run analytics on routes to find the most optimal route to reduce fuel costs.
+The cold path refers to historic data, storing data for the long term to be processed whenever needed. For example, you could use the cold path to get annual mileage reports for vehicles, or run analytics on routes to find the most optimal route to reduce fuel costs.
 
 Cold path data is stored in data warehouses - databases designed for storing large amounts of data that will never change and can be queried quickly and easily. You would normally have a regular job in your cloud application that would run at a regular time each day, week, or month to move data from warm path storage into the data warehouse.
 
@@ -141,74 +152,111 @@ Cold path data is stored in data warehouses - databases designed for storing lar
 
 ## Handle GPS events using serverless code
 
-Once data is flowing into your IoT Hub, you can write some serverless code to listen for events published to the Event-Hub compatible endpoint. This is the warm path - this data will be stored and used in the next lesson for reporting on the journey.
+Once data is flowing into your IoT service, the serverless code of the service runs for every GPS message that arrives. This is the warm path - this data will be stored and used in the next lesson for reporting on the journey.
 
-![Sending GPS telemetry from an IoT device to IoT Hub, then to Azure Functions via an event hub trigger](../../../images/gps-telemetry-iot-hub-functions.png)
+![Sending GPS telemetry from an IoT device to the IoT service, where a Worker handles each event](../../../images/gps-telemetry-iot-service-worker.png)
 
 ### Task - handle GPS events using serverless code
 
-1. Create an Azure Functions app using the Azure Functions CLI. Use the Python runtime, and create it in a folder called `gps-trigger`.
+1. Open the `gps-sensor-iot` project in VS Code and in a terminal.
 
-    > ⚠️ You can refer to the [instructions for creating an Azure Functions Project from project 2, lesson 9](../../../2-farm/lessons/9-migrate-application-to-the-cloud/README.md#create-a-serverless-application) if needed.
+    > ⚠️ You can refer to the [instructions for working with a serverless project from project 2, lesson 9](../../../2-farm/lessons/9-migrate-application-to-the-cloud/README.md#create-a-serverless-application) if needed.
 
-1. Add an IoT Hub event trigger that uses the IoT Hub's Event Hub compatible endpoint.
+1. From the `gps-sensor-iot` project folder, open `src/index.js` file in a text editor and update the `handleTelemetry` function so that the service processes the GPS telemetry. Replace the last two statements of the function, the `console.log` and the `return`, with the following:
 
-    > ⚠️ You can refer to the [instructions for creating an IoT Hub event trigger from project 2, lesson 9](../../../2-farm/lessons/9-migrate-application-to-the-cloud/README.md#create-an-iot-hub-event-trigger) if needed.
+    ```javascript
+    const gps = telemetry.gps;
+    if (!gps || typeof gps.lat !== "number" || typeof gps.lon !== "number") {
+        return new Response("gps.lat and gps.lon must be numbers", { status: 400 });
+    }
 
-1. Set the Event Hub compatible endpoint connection string in the `local.settings.json` file.
+    console.log("Worker processed an event: " + JSON.stringify({ gps }));
 
-1. Use the Azurite app as a local storage emulator
-
-1. Run your functions app to ensure it is receiving events from your GPS device. **Make sure your IoT device is also running and sending GPS data.**
-
-    ```output
-    Python EventHub trigger processed an event: {"gps": {"lat": 47.73481, "lon": -122.25701}}
+    return Response.json({ status: "received" });
     ```
 
-## Azure Storage Accounts
+    The telemetry from your device is received by the service in the request, which is the trigger of the function. The code makes sure it contains a GPS location, writes it to the log, and confirms that it was received.
+    
+### Task - test the function on your computer
 
-![The Azure Storage logo](../../../images/azure-storage-logo.png)
+You can run the service on your computer to test it before you deploy it. Unlike the deployed service, it uses a simulated storage on your computer.
+    
+1. Register your device in the local storage. Without the `--remote` option, this command writes to the local storage:
 
-Azure Storage Accounts is a general purpose storage service that can store data in a variety of different ways. You can store data as blobs, in queues, in tables, or as files, and all at the same time.
+    ```sh
+    npx wrangler kv key put --binding=DEVICE_STATE "device:gps-sensor" "my-test-key"
+    ```
+1. Start the service on your computer.
 
-### Blob storage
+    ```sh
+    npx wrangler dev
+    ```
 
-The word *Blob* means binary large objects, but has become the term for any unstructured data. You can store any data in blob storage, from JSON documents containing IoT data, to image and movie files. Blob storage has the concept of *containers*, named buckets that you can store data in, similar to tables in a relational database. These containers can have one or more folders to store blobs, and each folder can contain other folders, similar to how files are stored on your computer hard disk.
+	The service is now running locally at `http://localhost:8787`.
 
-You will use blob storage in this lesson to store IoT data.
+1. From a second terminal, send some telemetry:
 
-✅ Do some research: Read up on [Azure Blob Storage](https://docs.microsoft.com/azure/storage/blobs/storage-blobs-overview?WT.mc_id=academic-17441-jabenn)
+    ```sh
+    curl -X POST http://localhost:8787/telemetry \
+         -H "Content-Type: application/json" \
+         -H "x-device-id: gps-sensor" \
+         -H "x-api-key: my-test-key" \
+         -d '{"gps": {"lat": 39.81556, "lon": -7.48182}}'
+    ```
 
-### Table storage
+    You should see:
 
-Table storage allows you to store semi-structured data. Table storage is actually a NoSQL database, so doesn't require a defined set of tables up front, but it is designed to store data in one or more tables, with unique keys to define each row.
+    ```output
+     Worker processed an event: {"gps": {"lat": 39.81556, "lon": -7.48182}}
+    ```
 
-✅ Do some research: Read up on [Azure Table Storage](https://docs.microsoft.com/azure/storage/tables/table-storage-overview?WT.mc_id=academic-17441-jabenn)
+    Try a request with a wrong key and verify that the service returns the expected responses.
+
+1. Press `x` in the terminal to stop the local service.
+
+## Cloud storage options
+
+Cloudflare has several storage services that you can connect to your serverless code. You can store data as key-value pairs, as objects, in database tables, or in queues, and you can use more than one at the same time.
+
+### Key-value storage
+
+Workers KV is a key-value store. You save a value, such as a JSON document containing IoT data, under a name, called a *key*. Keys can contain forward slashes and a common prefix, so you can organize them like folders, and list all the keys that start with a prefix, similar to how files are stored on your computer hard disk. You create a store, called a *namespace*, and then connect it to your Worker.
+
+You will use KV in this lesson to store IoT data.
+
+> 💁 At the time of writing, the free plan of Workers KV allows 1 GB of data, 100,000 reads a day and 1,000 writes, deletes and lists a day. Limits change over time, so check the [Cloudflare Workers pricing page](https://developers.cloudflare.com/workers/platform/pricing/) before you start.
+
+✅ Do some research: Read up on [Workers KV](https://developers.cloudflare.com/kv/)
+
+### Object storage
+
+R2 is object storage, for files and other large unstructured data such as images and movies. It is compatible with the interface of Amazon S3, so many existing tools can work with it. Data is stored in *buckets*, which can have folders to organize the objects.
+
+> 💁 Check whether R2 needs a payment method on your account before using it with students, as this may differ from the other services in this lesson.
+
+✅ Do some research: Read up on [Cloudflare R2](https://developers.cloudflare.com/r2/)
+
+### Database storage
+
+D1 is a serverless SQL database, based on SQLite. Unlike the other services in this lesson, it stores structured data in tables, with a schema that you define up front, and you query it using SQL.
+
+✅ Do some research: Read up on [Cloudflare D1](https://developers.cloudflare.com/d1/)
 
 ### Queue storage
 
-Queue storage allows you to store messages of up to 64KB in size in a queue. You can add messages to the back of the queue, and read them off the front. Queues store messages indefinitely as long as there is still storage space, so it allows messages to be stored long term. then read off when needed. For example, if you wanted to run a monthly job to process GPS data you could add it to a queue every day for a month, then at the end of the month process all the messages off the queue.
+Queues allow you to store messages in a queue. You can add messages to the back of the queue, and a Worker can read them off the front, one after another or in batches. This allows messages to be stored while they wait to be processed. For example, if you wanted to run a regular job to process GPS data you could add it to a queue during the day, then process all the messages off the queue at night.
 
-✅ Do some research: Read up on [Azure Queue Storage](https://docs.microsoft.com/azure/storage/queues/storage-queues-introduction?WT.mc_id=academic-17441-jabenn)
-
-### File storage
-
-File storage is storage of files in the cloud, and any apps or devices can connect using industry standard protocols. You can write files to file storage, then mount it as a drive on your PC or Mac.
-
-✅ Do some research: Read up on [Azure File Storage](https://docs.microsoft.com/azure/storage/files/storage-files-introduction?WT.mc_id=academic-17441-jabenn)
+✅ Do some research: Read up on [Cloudflare Queues](https://developers.cloudflare.com/queues/)
 
 ## Connect your serverless code to storage
 
-Your function app now needs to connect to blob storage to store the messages from the IoT Hub. There's 2 ways to do this:
+Your service now needs to connect to storage to store the messages from the device. A Worker connects to storage using a *binding*: a setting in the configuration of the Worker that gives your code a ready-to-use object, such as `env.GPS_DATA`.
 
-* Inside the function code, connect to blob storage using the blob storage Python SDK and write the data as blobs
-* Use an output function binding to bind the return value of the function to blob storage and have the blob saved automatically
+In this part of the lesson, you will use a KV binding to see how to interact with storage.
 
-In this lesson, you will use the Python SDK to see how to interact with blob storage.
+![Sending GPS telemetry from an IoT device to the IoT service, then saving it to KV storage from the Worker](../../../images/save-telemetry-to-storage-from-worker.png)
 
-![Sending GPS telemetry from an IoT device to IoT Hub, then to Azure Functions via an event hub trigger, then saving it to blob storage](../../../images/save-telemetry-to-storage-from-functions.png)
-
-The data will be saved as a JSON blob with the following format:
+The data will be saved as a JSON document with the following format:
 
 ```json
 {
@@ -222,218 +270,143 @@ The data will be saved as a JSON blob with the following format:
 }
 ```
 
-### Task - connect your serverless code to storage
+### Task - connect your serverless code to a storage
 
-1. Run the following command in the terminal to update the `azure-cli` package:
-
-    ```sh
-    pip3 install azure-cli 
-    ```
-
-1. Create an Azure Storage account:
+01. Create a KV namespace for the GPS data:
 
     ```sh
-    az storage account create --resource-group gps-sensor \
-                              --sku Standard_LRS \
-                              --allow-blob-public-access $true \
-                              --name <storage_name> 
+    npx wrangler kv namespace create GPS_DATA
     ```
 
-    Replace `<storage_name>` with a name for your storage account. This will need to be globally unique as it forms part of the URL used to access the storage account. You can only use lower case letters and numbers for this name, no other characters, and it's limited to 24 characters. Use something like `gps<your name>`.
-
-1. Run the following command to get the connection string for the storage account:
-
-    ```sh
-    az storage account show-connection-string --output table \
-                                              --name <storage_name>
-    ```
-
-    Replace `<storage_name>` with the name of the storage account you created in the previous step.
-
-1. Add a new entry to the `local.settings.json` file for your storage account connection string, using the value from the previous step. Name it `STORAGE_CONNECTION_STRING`
-
-1. Add the following to the `requirements.txt` file to install the Azure storage Pip packages:
-
-    ```sh
-    azure-storage-blob
-    ```
-
-    Install the packages from this file.
-
-1. In the `function_app.py` file for the `gps-trigger`, all the following imports:
-
-    ```python
-    import os
-    import uuid
-    from azure.storage.blob import BlobServiceClient, PublicAccess
-    ```
-
-    The `os` system module will be used to read the connection string, the `uuid` system module will be used to generate a unique ID for the GPS reading.
-
-    The `azure.storage.blob` package contains the Python SDK to work with blob storage.
-
-1. After imports and before `app = func.FunctionApp()` add the following helper method:
-
-    ```python
-    def get_or_create_container(name):
-        connection_str = os.environ['STORAGE_CONNECTION_STRING']
-        blob_service_client = BlobServiceClient.from_connection_string(connection_str)
+    The output shows the `id` of the new namespace.
     
-        for container in blob_service_client.list_containers():
-            if container.name == name:
-                return blob_service_client.get_container_client(container.name)
-        
-        return blob_service_client.create_container(name, public_access=PublicAccess.Container)
+    Newer versions of Wrangler may offer to add this configuration for you. If prompted, select **yes**, keep the binding name **GPS_DATA** and select **no** when asked whether to connect to a remote resource. Once this configuration is complete, you can skip the next step.
+
+01. Connect the namespace to your Worker. Open `wrangler.jsonc` and add the namespace to the existing list of KV namespaces, replacing `<namespace id>` with the id from the output:
+
+    ```jsonc
+    "kv_namespaces": [
+      { "binding": "DEVICE_STATE", "id": "<device store id>" },
+      { "binding": "GPS_DATA", "id": "<namespace id>" }
+    ]
     ```
 
-    The Python blob SDK doesn't have a helper method to create a container if it doesn't exist. This code will load the connection string from the `local.settings.json` file (or the Application Settings once deployed to the cloud), then create a `BlobServiceClient` class from this to interact with the blob storage account. It then loops through all the containers for the blob storage account, looking for one with the provided name - if it finds one it will return a `ContainerClient` class that can interact with the container to create blobs. If it doesn't find one, then the container is created and the client for the new container is returned.
+    This makes the store available to your code as `env.GPS_DATA`.
 
-    When the new container is created, public access is granted to query the blobs in the container. This will be used in the next lesson to visualize the GPS data on a map.
+01. In `src/index.js` file, inside the `handleTelemetry` function, add the following code immediately below the `console.log` statement:
 
-1. Inside `process_event` method below the `logging.info` statement add the following:
-
-    ```python
-    device_id = event.iothub_metadata['connection-device-id']
-    blob_name = f'{device_id}/{str(uuid.uuid1())}.json'
+    ```javascript
+    const timestamp = new Date().toISOString();
+    const key = `${deviceId}/${timestamp}-${crypto.randomUUID()}.json`;
     ```
 
-    This code gets the device ID from the event metadata, then uses it to create a blob name. Blobs can be stored in folders, and device ID will be used for the folder name, so each device will have all its GPS events in one folder. The blob name is this folder, followed by a document name, separated with forward slashes, similar to Linux and macOS paths (similar to Windows as well, but Windows uses back slashes). The document name is a unique ID generated using the Python `uuid` module, with the file type of `json`.
+    This code creates the time of the reading, and uses it with the device ID to create a key. Keys can be organized like folders, and device ID will be used for the folder name, so each device will have all its GPS events under one prefix. The key is this prefix, followed by a document name, separated with forward slashes, similar to Linux and macOS paths. The document name starts with the time, so that keys are listed in time order, followed by a unique ID generated using `crypto.randomUUID()`, with the file type of `json`.
 
-    For example, for the `gps-sensor` device ID, the blob name might be `gps-sensor/a9487ac2-b9cf-11eb-b5cd-1e00621e3648.json`.
+    For example, for the `gps-sensor` device ID, the key might be `gps-sensor/2026-10-29T10:15:00.123Z-a9487ac2-b9cf-11eb-b5cd-1e00621e3648.json`.
 
-1. Add the following code below the previous one:
+01. Add the following code below the previous one:
 
-    ```python
-    container_client = get_or_create_container('gps-data')
-    blob = container_client.get_blob_client(blob_name)
+    ```javascript
+    const body = {
+        device_id: deviceId,
+        timestamp,
+        gps,
+    };
     ```
 
-    This code gets the container client using the `get_or_create_container` helper class, and then gets a blob client object using the blob name. These blob clients can refer to existing blobs, or as in this case, to new blob.
+    This builds the body of the document that will be written to storage. It is a JSON document containing the device ID, the time the telemetry was received by the service, and the GPS coordinates from the telemetry.
 
-1. Add the following code below the previous one:
+    > 💁 The service uses the time it received the message. If your device stores readings while it is offline and sends them later, the device should send the time of each reading in the telemetry, and the service should use that time instead.
 
-    ```python
-    event_body = json.loads(json.loads(event.get_body().decode('utf-8')))
-    blob_body = {
-        'device_id' : device_id,
-        'timestamp' : event.iothub_metadata['enqueuedtime'],
-        'gps': event_body['gps']
-    }
+01. Add the following code below the previous one:
+
+    ```javascript
+    console.log(`Writing key ${key} - ${JSON.stringify(body)}`);
+    await env.GPS_DATA.put(key, JSON.stringify(body));
     ```
 
-    This builds the body of the blob that will be written to blob storage. It is a JSON document containing the device ID, the time the telemetry was sent to IoT Hub, and the GPS coordinates from the telemetry.
+    This code logs that a document is about to be written with its details, then writes the document body to the `GPS_DATA` storage under the new key.
 
-    > 💁 It is important to use the enqueued time of the message as opposed to the current time to get the time that the message was sent. It could be sitting on the hub for a while before being picked up if the Functions App is not running.
-
-1. Add the following code below the previous one:
-
-    ```python
-    logging.info(f'Writing blob to {blob_name} - {blob_body}')
-    blob.upload_blob(json.dumps(blob_body).encode('utf-8'))
-    ```
-
-    This code logs that a blob is about to be written with it's details, then uploads the blob body as the content of the new blob.
-
-1. Run the Functions app. You will see blobs being written for all the GPS events in the output:
+01. Run the service locally using `npx wrangler dev` and then test it with the `curl` command used previously. You will see documents being written for all the GPS events in the output:
 
     ```output
-    [2021-05-21T01:31:14.325Z] Python EventHub trigger processed an event: {"gps": {"lat": 47.73092, "lon": -122.26206}}
-    ...
-    [2021-05-21T01:31:14.351Z] Writing blob to gps-sensor/4b6089fe-ba8d-11eb-bc7b-1e00621e3648.json - {'device_id': 'gps-sensor', 'timestamp': '2021-05-21T00:57:53.878Z', 'gps': {'lat': 47.73092, 'lon': -122.26206}}
+    Worker processed an event: {"gps": {"lat": 39.81556, "lon": -7.48182}}
+    Writing key gps-sensor/2026-10-29T10:15:00.123Z-4b6089fe-ba8d-11eb-bc7b-1e00621e3648.json - {"device_id":"gps-sensor","timestamp":"2026-10-29T10:15:00.123Z","gps":{"lat": 39.81556, "lon": -7.48182}}
     ```
 
-    > 💁 Make sure you are not running the IoT Hub event monitor at the same time.
+    > 💁 While you use `npx wrangler dev`, the data is written to the simulated storage on your computer, not to the cloud.
 
-> 💁 You can find this code in the [code/functions](code/functions) folder.
+> 💁 You can find this code in the [code/worker](code/worker) folder.
 
-### Task - verify the uploaded blobs
+### Task - verify the stored data
 
-1. To view the blobs created, you can either use the [Azure Storage Explorer](https://azure.microsoft.com/features/storage-explorer/?WT.mc_id=academic-17441-jabenn), a free tool that allows you to view and manage your storage accounts, or from the CLI.
+To view the data created, you can use the *Storage & databases* section of the Cloudflare dashboard, where you can see the keys of a KV namespace, or the command line.
 
-    1. To use the CLI, first you will need an account key. Run the following command to get this key:
+1. In the terminal run the following command to list the keys that start with the device ID:
 
-        ```sh
-        az storage account keys list --output table \
-                                     --account-name <storage_name>
-        ```
+    ```sh
+    npx wrangler kv key list --binding=GPS_DATA --prefix "gps-sensor/"
+    ```
 
-        Replace `<storage_name>` with the name of the storage account.
+    This will list out all the keys in the storage:
 
-        Copy the value of `key1`.
+    ```output
+    [
+        { "name": "gps-sensor/2026-10-29T10:15:00.123Z-1810d55e-b9cf-11eb-9f5b-1e00621e3648.json" },
+        { "name": "gps-sensor/2026-10-29T10:15:10.456Z-18293e46-b9cf-11eb-9f5b-1e00621e3648.json" },
+        { "name": "gps-sensor/2026-10-29T10:15:20.789Z-1844549c-b9cf-11eb-9f5b-1e00621e3648.json" }
+    ]
+    ```
 
-    1. Run the following command to list the blobs in the container:
+    > 💁 Without the `--remote` option, these commands show the simulated store you used with `npx wrangler dev`. Add `--remote` to see the store of your deployed service.
 
-        ```sh
-        az storage blob list --container-name gps-data \
-                             --output table \
-                             --account-name <storage_name> \
-                             --account-key <key1>
-        ```
+1. Read one of the documents using the following command:
 
-        Replace `<storage_name>` with the name of the storage account, and `<key1>` with the value of `key1` you copied in the last step.
+    ```sh
+    npx wrangler kv key get --binding=GPS_DATA "<key>"
+    ```
 
-        This will list out all the blobs in the container:
+    Replace `<key>` with the full filename shown in the previous step's output, including the prefix and the .json extension. To save the document to a local file, add `> <file_name>` at the end of the command.
 
-        ```output
-        Name                                                  Blob Type    Blob Tier    Length    Content Type              Last Modified              Snapshot
-        ----------------------------------------------------  -----------  -----------  --------  ------------------------  -------------------------  ----------
-        gps-sensor/1810d55e-b9cf-11eb-9f5b-1e00621e3648.json  BlockBlob    Hot          45        application/octet-stream  2021-05-21T00:54:27+00:00
-        gps-sensor/18293e46-b9cf-11eb-9f5b-1e00621e3648.json  BlockBlob    Hot          45        application/octet-stream  2021-05-21T00:54:28+00:00
-        gps-sensor/1844549c-b9cf-11eb-9f5b-1e00621e3648.json  BlockBlob    Hot          45        application/octet-stream  2021-05-21T00:54:28+00:00
-        gps-sensor/1894d714-b9cf-11eb-9f5b-1e00621e3648.json  BlockBlob    Hot          45        application/octet-stream  2021-05-21T00:54:28+00:00
-        ```
-
-    1. Download one of the blobs using the following command:
-
-        ```sh
-        az storage blob download --container-name gps-data \
-                                 --account-name <storage_name> \
-                                 --account-key <key1> \
-                                 --name <blob_name> \
-                                 --file <file_name>
-        ```
-
-        Replace `<storage_name>` with the name of the storage account, and `<key1>` with the value of `key1` you copied in the earlier step.
-
-        Replace `<blob_name>` with the full name from the `Name` column of the output of the last step, including the folder name. Replace `<file_name>` with the name of a local file to save the blob to.
-
-    Once downloaded, you can open the JSON file in VS Code, and you will see the blob containing the GPS location details:
+    The document is a JSON file containing the GPS location details:
 
     ```json
-    {"device_id": "gps-sensor", "timestamp": "2021-05-21T00:57:53.878Z", "gps": {"lat": 47.73092, "lon": -122.26206}}
+    {"device_id":"gps-sensor","timestamp":"2026-10-29T10:15:00.123Z","gps":{"lat":47.73092,"lon":-122.26206}}
     ```
 
-### Task - deploy your Functions App to the cloud
+### Task - deploy your IoT service to the cloud
 
-Now that your Function app is working, you can deploy it to the cloud.
+Now that your service is working, you can deploy it to the cloud.
 
-1. Create a new Azure Functions app, using the storage account you created earlier. Name this something like `gps-sensor-` and add a unique identifier on the end, like some random words or your name.
+1. Deploy your updated service from the project folder. The namespaces are connected through the configuration, so there is nothing else to create:
 
-    > ⚠️ You can refer to the [instructions for creating a Functions app from project 2, lesson 9](../../../2-farm/lessons/9-migrate-application-to-the-cloud/README.md#task---create-the-cloud-resources) if needed.
+    ```sh
+    npx wrangler deploy
+    ```
 
-1. Upload the `IOT_HUB_CONNECTION_STRING` and `STORAGE_CONNECTION_STRING` values to the Application Settings
+1. The device you registered at the beginning of this lesson is already stored in the deployed service. Make sure that the IoT service configuration values in your device code are correct: `service_url`, `device_id`, and `device_key`. Then leave your device running for a while to collect enough GPS data for the next lesson.
 
-    > ⚠️ You can refer to the [instructions for uploading Application Settings from project 2, lesson 9](../../../2-farm/lessons/9-migrate-application-to-the-cloud/README.md#task---upload-your-application-settings) if needed.
+1. You can use Wrangler to monitor the service logs and confirm that messages are being received by your IoT service:
 
-1. Deploy your local Functions app to the cloud.
+    ```sh
+    npx wrangler tail
+    ```
 
-    > ⚠️ You can refer to the [instructions for deploying your Functions app from project 2, lesson 9](../../../2-farm/lessons/9-migrate-application-to-the-cloud/README.md#task---deploy-your-functions-app-to-the-cloud) if needed.
+1. You can also verify that the data is reaching the cloud by listing the keys stored in the deployed storage:
+
+    ```sh
+    npx wrangler kv key list --binding=GPS_DATA --prefix "gps-sensor/" --remote
+    ```
 
 ---
 
 ## 🚀 Challenge
 
-GPS data is not perfectly accurate, and the locations being detected can be out by a few meters, if not more especially in tunnels and areas of tall buildings.
-
-Think about how satellite navigation could overcome this? What data does your sat-nav have that would allow it to make better predictions on your location?
+Every GPS reading you store is a write to the KV store, and the free plan allows 1,000 writes a day. How often can your device send a reading if it should be tracking a truck all day? What would you change if you needed more readings?
 
 ## Review & Self Study
 
 * Read about structured data on the [Data model page on Wikipedia](https://wikipedia.org/wiki/Data_model)
 * Read about semi-structured data on the [Semi-structured data page on Wikipedia](https://wikipedia.org/wiki/Semi-structured_data)
 * Read about unstructured data on the [Unstructured data page on Wikipedia](https://wikipedia.org/wiki/Unstructured_data)
-* Read more on Azure Storage and the different storage types in the [Azure Storage documentation](https://docs.microsoft.com/azure/storage/?WT.mc_id=academic-17441-jabenn)
-
-## Assignment
-
-[Investigate function bindings](assignment.md)
+* Read more on Cloudflare storage and the different storage types in the [Workers KV](https://developers.cloudflare.com/kv/), [R2](https://developers.cloudflare.com/r2/) and [D1](https://developers.cloudflare.com/d1/) documentation

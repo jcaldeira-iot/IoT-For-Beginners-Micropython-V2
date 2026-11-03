@@ -10,7 +10,7 @@ while True:
     if data:
         print_gps_data(data)
     else:
-        print("End of file! Start again...")
+        print("End of file!")
         gpsDataFile.close()
-        gpsDataFile = open('gpsDataFile.txt', 'r')
+        break
     time.sleep(1)

@@ -310,7 +310,7 @@ The device does not need to do anything with the reply for now.
 
 Work through the relevant guide to connect your IoT device to the cloud:
 
-- **[Microcontroller ESP32](./esp32-connect-cloud.md) <<<<----------**
+- **[Microcontroller ESP32](esp32-connect-cloud.md) <<<<----------**
 
 ### Task - monitor events
 
@@ -346,7 +346,3 @@ For now, you won't be updating your server code. Instead you can use Wrangler to
 The free plan of Cloudflare Workers allows 100,000 requests a day, and the Workers KV store allows 100,000 reads a day. The code you wrote sends telemetry messages every 10 seconds, and your service reads from the store once for every message, to check the device. How many messages a day is one message every 10 seconds, and how many reads is that?
 
 Think about how often soil moisture measurements should be sent? How can you change your code to stay within the free plan and check as often as needed but not too often? What if you wanted to add a second device?
-
-## Assignment
-
-[Learn about cloud services](./assignment.md)

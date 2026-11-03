@@ -126,6 +126,6 @@ After your device is registered, you can send telemetry to the IoT service and r
     Reply  {'status': 'received'}
     ```
 
-> 💁 You can find this code in the [code/esp32](./code/esp32) folder.
+> 💁 You can find this code in the [code/esp32](code/esp32) folder.
 
 😀 Your soil moisture sensor program is connected to your IoT service!
