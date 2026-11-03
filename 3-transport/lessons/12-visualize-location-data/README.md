@@ -287,7 +287,7 @@ A web page cannot read your KV namespace directly. Instead, your IoT service wil
 
     > 💁 The number of points is limited, because a Worker can only make a limited number of storage requests each time it runs, and because the free plan has daily limits for storage reads. Listing keys also counts towards the same daily limit as writing them. Check the limits on the [Cloudflare Workers pricing page](https://developers.cloudflare.com/workers/platform/pricing/).
 
-1. If you load a web page from a different address than your IoT service, the browser may stop the page from reading the data and show an error in its console. That is why the response has the `corsHeaders`.
+    > 💁 If you load a web page from a different address than your IoT service, the browser may stop the page from reading the data and show an error in its console. That is why the response has the `corsHeaders`.
 
     > 🎓 CORS stands for "Cross-Origin Resource Sharing". Browsers stop a web page from reading data from another address, unless that address says that it is allowed, to stop sites you don't expect from getting access to your data. The `Access-Control-Allow-Origin` header with `*` means that any website is allowed to read the response. The `Access-Control-Allow-Methods` header says that only `GET` requests, that is getting data, are allowed.
 
