@@ -254,7 +254,7 @@ Your service now needs to connect to storage to store the messages from the devi
 
 In this part of the lesson, you will use a KV binding to see how to interact with storage.
 
-![Sending GPS telemetry from an IoT device to the IoT service, then saving it to KV storage from the Worker](../../../images/save-telemetry-to-storage-from-worker.png)
+<!--![Sending GPS telemetry from an IoT device to the IoT service, then saving it to KV storage from the Worker](../../../images/save-telemetry-to-storage-from-worker.png)-->
 
 The data will be saved as a JSON document with the following format:
 
