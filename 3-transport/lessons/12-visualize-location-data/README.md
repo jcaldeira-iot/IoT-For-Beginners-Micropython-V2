@@ -291,7 +291,7 @@ A web page cannot read your KV namespace directly. Instead, your IoT service wil
 
     > 🎓 CORS stands for "Cross-Origin Resource Sharing". Browsers stop a web page from reading data from another address, unless that address says that it is allowed, to stop sites you don't expect from getting access to your data. The `Access-Control-Allow-Origin` header with `*` means that any website is allowed to read the response. The `Access-Control-Allow-Methods` header says that only `GET` requests, that is getting data, are allowed.
 
-> 💁 You can find this code in the [code/worker](code/worker) folder.
+	> 💁 You can find this code in the [code/worker](code/worker) folder.
 
 1. Deploy the updated service:
 
@@ -337,7 +337,7 @@ A web page cannot read your KV namespace directly. Instead, your IoT service wil
 
     The service already combines all the readings into one GeoJSON document, so the web page does not need any extra code to load and convert them.
     
-> 💁 You can find this code in the [code/webapp](code/webapp) folder.
+	> 💁 You can find this code in the [code/webapp](code/webapp) folder.
 
 1. Load the HTML page in your browser, using `http-server`. It will load the map, then load all the GPS data from your IoT service and plot it on the map.
 
