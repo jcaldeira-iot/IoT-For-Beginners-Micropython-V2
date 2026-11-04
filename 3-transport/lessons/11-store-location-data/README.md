@@ -84,7 +84,7 @@ In this lesson, you will be using NoSQL storage to store IoT data.
 
 In the last lesson you captured GPS data from a GPS sensor connected to your IoT device. To store this IoT data in the cloud, you need to send it to an IoT service. Once again, you will be using the kind of IoT service you built in the previous project: a serverless service on Cloudflare Workers, with a Workers KV storage that keeps the list of registered devices.
 
-![Sending GPS telemetry from an IoT device to the IoT service](../../../images/gps-telemetry-iot-service.png)
+<!--![Sending GPS telemetry from an IoT device to the IoT service](../../../images/gps-telemetry-iot-service.png)-->
 
 ### Task - Create and deploy an IoT service and register an IoT device
 
@@ -107,7 +107,7 @@ Work through the relevant steps to send the GPS data to the IoT service. The dev
 | Address | `https://gps-sensor-iot.<your-subdomain>.workers.dev/telemetry` |
 | Method | `POST` |
 | Headers | `Content-Type: application/json`, `x-device-id: gps-sensor`, `x-api-key: <device key>` |
-| Body | `{"gps": {"lat": 47.73481, "lon": -122.25701}}` |
+| Body | `{"gps": {"lat": 39.81556, "lon": -7.48182}}` |
 
 - **[Microcontroller ESP32](esp32-connect-cloud.md) <<<<----------**
 
@@ -154,7 +154,7 @@ Cold path data is stored in data warehouses - databases designed for storing lar
 
 Once data is flowing into your IoT service, the serverless code of the service runs for every GPS message that arrives. This is the warm path - this data will be stored and used in the next lesson for reporting on the journey.
 
-![Sending GPS telemetry from an IoT device to the IoT service, where a Worker handles each event](../../../images/gps-telemetry-iot-service-worker.png)
+<!--![Sending GPS telemetry from an IoT device to the IoT service, where a Worker handles each event](../../../images/gps-telemetry-iot-service-worker.png)-->
 
 ### Task - handle GPS events using serverless code
 
@@ -371,7 +371,7 @@ To view the data created, you can use the *Storage & databases* section of the C
     The document is a JSON file containing the GPS location details:
 
     ```json
-    {"device_id":"gps-sensor","timestamp":"2026-10-29T10:15:00.123Z","gps":{"lat":47.73092,"lon":-122.26206}}
+    {"device_id":"gps-sensor","timestamp":"2026-10-29T10:15:00.123Z","gps":{"lat":39.81556,"lon":-7.48182}}
     ```
 
 ### Task - deploy your IoT service to the cloud
