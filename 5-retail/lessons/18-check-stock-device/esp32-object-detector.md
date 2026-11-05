@@ -71,7 +71,7 @@ The code you used to classify images is very similar to the code to detect objec
 1. Run this code and it will send the image to the object detector, and print out the detected objects.
 
    ```output
-   cashew nuts:	   98.99%
+   cashew nuts:    98.99%
    tomato paste:   91.42%
    tomato paste:   88.95%
    tomato paste:   87.05%
