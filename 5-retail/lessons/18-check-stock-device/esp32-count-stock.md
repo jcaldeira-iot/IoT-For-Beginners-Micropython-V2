@@ -24,6 +24,10 @@ Each detection returned by the object detector contains the position of the obje
 1. Run the app with an image of some stock on a shelf. The bounding boxes will be printed to the console, with the center position and the size in pixels.
 
    ```output
+   >>> %Run -c $EDITOR_CONTENT
+
+   MPY: soft reboot
+   network config: ('10.6.3.162', '255.255.240.0')
    tomato paste:   93.42%  x=228 y=112 width=91 height=139
    tomato paste:   91.05%  x=330 y=116 width=76 height=130
    tomato paste:   88.27%  x=338 y=252 width=86 height=141
@@ -81,6 +85,10 @@ Image libraries such as Pillow are not available for MicroPython, so you will dr
 1. Run the app with an image of some stock on a shelf. You will see the bounding boxes drawn in the console.
 
    ```output
+   >>> %Run -c $EDITOR_CONTENT
+
+   MPY: soft reboot
+   network config: ('10.6.3.162', '255.255.240.0')
                      +--------+ +------+
                      |        | |      |
                      |        | |      |
@@ -170,6 +178,10 @@ The overlap of two rectangles can be calculated with simple maths.
 1. Run the app with an image of some stock on a shelf. The output will indicate the number of bounding boxes without overlaps that exceed the threshold. Try adjusting the `overlap_threshold` value to see detections being ignored.
 
    ```output
+   >>> %Run -c $EDITOR_CONTENT
+
+   MPY: soft reboot
+   network config: ('10.6.3.162', '255.255.240.0')
    tomato paste:   93.42%  x=228 y=112 width=91 height=139
    tomato paste:   91.05%  x=330 y=116 width=76 height=130
    tomato paste:   88.27%  x=338 y=252 width=86 height=141

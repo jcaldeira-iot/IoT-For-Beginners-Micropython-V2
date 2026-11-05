@@ -71,6 +71,10 @@ The code you used to classify images is very similar to the code to detect objec
 1. Run this code and it will send the image to the object detector, and print out the detected objects.
 
    ```output
+   >>> %Run -c $EDITOR_CONTENT
+
+   MPY: soft reboot
+   network config: ('10.6.3.162', '255.255.240.0')
    cashew nuts:    98.99%
    tomato paste:   91.42%
    tomato paste:   88.95%
