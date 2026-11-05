@@ -152,7 +152,3 @@ If you have any similar looking items, test it out by adding images of them to y
 
 * When you trained your object detector, you would have seen values for *Precision*, *Recall*, and *mAP* that rate the model that was created. Read up on what these values are in the [Roboflow documentation](https://docs.roboflow.com) and on the [Object detection page on Wikipedia](https://wikipedia.org/wiki/Object_detection).
 * Read more about object detection on the [Object detection page on Wikipedia](https://wikipedia.org/wiki/Object_detection)
-
-## Assignment
-
-[Compare domains](assignment.md)

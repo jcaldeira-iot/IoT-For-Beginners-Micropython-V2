@@ -55,7 +55,3 @@ How much does image resolution or lighting affect the prediction?
 Try changing the resolution of the images in your device code and see if it makes a difference to the quality of the images. Also try changing lighting.
 
 If you were to create a production device to sell to farms or factories, how would you ensure it gives consistent results all the time?
-
-## Assignment
-
-[Respond to classification results](assignment.md)

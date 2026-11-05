@@ -174,7 +174,3 @@ Try it out and see what the predictions are. You can find images to try with usi
 
 * When you trained your classifier, you will have seen evaluation metrics such as *accuracy*, *precision* and *recall*. Read up on what these values are, for example in the [Roboflow documentation](https://docs.roboflow.com) and in the [ML for beginners](https://aka.ms/ML-beginners) curriculum.
 * Read up on how to improve a classifier: more images, more varied backgrounds and lighting, balanced classes, and augmentation.
-
-## Assignment
-
-[Train your classifier for multiple fruits and vegetables](assignment.md)

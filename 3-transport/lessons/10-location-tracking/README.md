@@ -187,7 +187,3 @@ Write your own NMEA decoder! Can you create a decoder to extract complete data f
 * Read more on Geospatial Coordinates on the [Geographic coordinate system page on Wikipedia](https://wikipedia.org/wiki/Geographic_coordinate_system).
 * Read up on the Prime Meridians on other celestial bodies besides the Earth on the [Prime Meridian page on Wikipedia](https://wikipedia.org/wiki/Prime_meridian#Prime_meridian_on_other_planetary_bodies)
 * Research the various different GPS systems from various world governments and political unions such as the EU, Japan, Russia, India and the US.
-
-## Assignment
-
-[Investigate other GPS data](assignment.md)

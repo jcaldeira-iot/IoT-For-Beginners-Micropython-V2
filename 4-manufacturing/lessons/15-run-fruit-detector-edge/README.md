@@ -267,7 +267,3 @@ Do some timings and compare if the call to your edge device is faster or slower 
 * Read more about containers on the [OS-level virtualization page on Wikipedia](https://wikipedia.org/wiki/OS-level_virtualization)
 * Read more on edge computing, with an emphasis on how 5G can help expand edge computing in the [what is edge computing and why does it matter? article on NetworkWorld](https://www.networkworld.com/article/3224893/what-is-edge-computing-and-how-it-s-changing-the-network.html)
 * Read the [Roboflow Inference documentation](https://inference.roboflow.com), in particular the sections on running the server on your own hardware and on securing a self-hosted server.
-
-## Assignment
-
-[Run other services on the edge](assignment.md)
