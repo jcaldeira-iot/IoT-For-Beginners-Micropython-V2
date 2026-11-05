@@ -26,10 +26,10 @@ The code you used to classify images is very similar to the code to detect objec
 
 1. Remove the lines of code at the end of your file that process the results of the classifier:
 
-   ```python
+
    ~~pred = result["outputs"][0]["predictions"]~~
    ~~print(pred["top"], ":", round(pred["confidence"] * 100, 2),"%")~~
-   ```
+
 
 1. Add the following function immediately after the call to the `classify` function. It will extract the detected objects from the workflow response:
 
