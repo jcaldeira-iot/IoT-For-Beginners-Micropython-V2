@@ -82,6 +82,11 @@ Next, you will prepare your code to read each line of a GPX file, extract the la
 1. Run the code. You will see each point being sent, and the confirmation from the service:
 
    ```output
+   >>> %Run -c $EDITOR_CONTENT
+
+   MPY: soft reboot
+   connecting to network...
+   network config: ('10.6.3.163', '255.255.240.0')
    Sending telemetry  {"gps": {"lat": 39.81556, "lon": -7.48182}}
    Reply  {'status': 'received'}
    ```

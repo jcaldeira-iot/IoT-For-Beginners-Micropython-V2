@@ -32,6 +32,11 @@ The code is the same as in the previous lesson, except that the ESP32 now connec
 1. Make sure the IoT Edge device and the ESP32 are connected to the same network. Run your code on the ESP32. The output will be displayed in the console:
 
     ```output
+    >>> %Run -c $EDITOR_CONTENT
+
+    MPY: soft reboot
+    connecting to network...
+    network config: ('10.6.3.163', '255.255.240.0')
     unripe : 97.74 %
     ```
 

@@ -191,7 +191,7 @@ At the moment your new code only runs on your computer. Now you will deploy it s
          -d '{"soil_moisture": 3020}'
     ```
 
-1. If necessary, update the `service_url`, `service_url` and `service_url` values in your ESP32 code, then run it. Your plant is now controlled by code running in the cloud, so you no longer need to keep a computer running.
+1. If necessary, update the `service_url`, `service_url` and `service_url` values in your ESP32 code, then run it. Your plant is now controlled by code running in the cloud, so you no longer need to keep running the service on your computer.
 
 ## HTTP trigger
 
