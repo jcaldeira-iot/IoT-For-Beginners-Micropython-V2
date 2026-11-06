@@ -120,6 +120,11 @@ After your device is registered, you can send telemetry to the IoT service and r
 1. Run the code. You will see telemetry being sent every 10 seconds:
 
     ```output
+    >>> %Run -c $EDITOR_CONTENT
+
+    MPY: soft reboot
+    connecting to network...
+    network config: ('10.6.3.163', '255.255.240.0')
     Sending telemetry  {"soil_moisture": 3342}
     Reply  {'status': 'received'}
     Sending telemetry  {"soil_moisture": 3320}
