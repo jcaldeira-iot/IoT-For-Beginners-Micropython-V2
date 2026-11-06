@@ -8,8 +8,6 @@ IoT can help with this, using AI models running on IoT devices to count stock, u
 
 In these 2 lessons you'll learn how to train image-based AI models to count stock, and run these models on IoT devices.
 
-> 💁 These lessons will use some cloud resources. If you don't complete all the lessons in this project, make sure you [clean up your project](../clean-up.md).
-
 ## Topics
 
 17. [Train a stock detector](./lessons/17-train-stock-detector/README.md)
