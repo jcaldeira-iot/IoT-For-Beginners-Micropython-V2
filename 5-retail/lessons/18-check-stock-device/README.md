@@ -69,9 +69,9 @@ When you use the object detector, you not only get back the detected objects wit
 
 When you test your model in Roboflow, the results have the bounding boxes drawn on the image that was sent for prediction.
 
-![4 cans of tomato paste on a shelf with predictions for the 4 detections of 35.8%, 33.5%, 25.7% and 16.6%](../../../images/roboflow-stock-prediction.png)
+![3 cans of tomato paste on a shelf with predictions for the 3 detections](../../../images/roboflow-stock-prediction.png)
 
-In the image above, 4 cans of tomato paste were detected. In the results a box is overlaid for each object that was detected in the image, indicating the bounding box for the object.
+In the image above, 3 cans of tomato paste were detected. In the results a box is overlaid for each object that was detected in the image, indicating the bounding box for the object.
 
 ✅ Open your model in Roboflow, test it with some images, and check out the bounding boxes.
 
