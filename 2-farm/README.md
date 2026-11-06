@@ -4,8 +4,6 @@ As the population grows, so does the demand on agriculture. The amount of land a
 
 In these 5 lessons you'll learn how to apply the Internet of Things to improve and automate farming.
 
-> 💁 These lessons will use some cloud resources. If you don't complete all the lessons in this project, make sure you [Clean up your project](../clean-up.md).
-
 ## Topics
 
 5. [Predict plant growth with IoT](lessons/5-predict-plant-growth/README.md)
