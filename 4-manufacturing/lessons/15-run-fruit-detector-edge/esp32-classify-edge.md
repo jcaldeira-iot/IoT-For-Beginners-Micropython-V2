@@ -37,6 +37,6 @@ The code is the same as in the previous lesson, except that the ESP32 now connec
 
     > 💁 If you get a `MemoryError`, use a smaller image.
 
-> 💁 You can find this code in the [code/esp32](./code/esp32) folder.
+> 💁 You can find this code in the [code/esp32](code/esp32) folder.
 
 😀 Your fruit quality classifier program was a success!

@@ -111,6 +111,6 @@ Roboflow publishes your trained model as a *workflow* that you can call through 
 
     > 💁 If you get a `MemoryError`, use a smaller image. If the request fails, check that the ESP32 is connected to Wi-Fi and that your API key, workspace name and workflow ID are correct.
 
-> 💁 You can find this code in the [code/esp32](./code/esp32) folder.
+> 💁 You can find this code in the [code/esp32](code/esp32) folder.
 
 😀 Your fruit quality classifier program was a success!
