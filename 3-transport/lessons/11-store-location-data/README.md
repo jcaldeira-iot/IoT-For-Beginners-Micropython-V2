@@ -158,7 +158,14 @@ Once data is flowing into your IoT service, the serverless code of the service r
 
 ### Task - handle GPS events using serverless code
 
-1. Open the `gps-sensor-iot` project in VS Code and in a terminal.
+1. Open the `gps-sensor-iot` folder in a terminal, and check that you are still logged in to Cloudflare:
+
+    ```sh
+    cd gps-sensor-iot
+    npx wrangler whoami
+    ```
+
+    If you are not logged in, run `npx wrangler login` again.
 
     > ⚠️ You can refer to the [instructions for working with a serverless project from project 2, lesson 9](../../../2-farm/lessons/9-migrate-application-to-the-cloud/README.md#create-a-serverless-application) if needed.
 
