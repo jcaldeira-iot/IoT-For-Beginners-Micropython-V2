@@ -52,7 +52,7 @@ Next, you will prepare your code to read each line of a GPX file, extract the la
 
 1. Since the GPX file uses a different format from NMEA sentences, the parsing logic must be adapted. Therefore, replace the contents of the `print_gps_data` function with the following:
 
-   ```
+   ```python
    data = data.strip()
    if 'trkpt lat=' in data:
         parts = data.split('"')
@@ -64,7 +64,7 @@ Next, you will prepare your code to read each line of a GPX file, extract the la
 
 1. Now you can send GPS data to the IoT service. Add the following inside the `if` statement introduced in the previous step:
 
-   ```
+   ```python
    telemetry = json.dumps({ "gps" : {"lat" : lat, "lon" : lon}})
    print("Sending telemetry ", telemetry)
 
