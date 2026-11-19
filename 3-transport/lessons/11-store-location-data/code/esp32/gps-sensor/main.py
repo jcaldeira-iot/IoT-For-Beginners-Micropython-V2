@@ -1,3 +1,4 @@
+import time
 import network
 
 ssid = '<NETWORK_SSID>'
@@ -12,26 +13,28 @@ if not wlan.isconnected():
         pass
 print('network config:', wlan.ipconfig('addr4'))
 
-try:
-    import ioth
-except:
-    import mip
-    mip.install('github:jcaldeira-iot/iot-hub-micropython-client/package.json')
-    import ioth
-from ioth import IoTHClient
+import urequests as requests
 
-iot_hub = '<hub_name>.azure-devices.net'
+service_url = 'https://gps-sensor-iot.<your-subdomain>.workers.dev'
 device_id = 'gps-sensor'
-sas_token = '<sas_token>'
+device_key = '<device key>'
 
-device_client = IoTHClient(iot_hub, device_id, sas_token)
-
-print('Connecting')
-device_client.connect()
-print('Connected')
-
-import time
-import json
+def send_telemetry(telemetry):
+    response = requests.post(
+        service_url + '/telemetry',
+        data=telemetry,
+        headers={
+            'Content-Type': 'application/json',
+            'x-device-id': device_id,
+            'x-api-key': device_key,
+        },
+    )
+    try:
+        if response.status_code != 200:
+            raise RuntimeError('HTTP {}: {}'.format(response.status_code, response.text))
+        return response.json()
+    finally:
+        response.close()
 
 gpsDataFile = open('gpsTrack.gpx', 'r')
 
@@ -41,17 +44,22 @@ def print_gps_data(data):
         parts = data.split('"')
         lat = float(parts[1])
         lon = float(parts[3])
-        
-        telemetry = json.dumps({ "gps" : { "lat":lat, "lon":lon } })
-        print("Sending telemetry ", telemetry)
-        device_client.send_telemetry(telemetry)
+
+    telemetry = json.dumps({ "gps" : {"lat" : lat, "lon" : lon}})
+    print("Sending telemetry ", telemetry)
+
+    try:
+        reply = send_telemetry(telemetry)
+        print("Reply ", reply)
+    except Exception as e:
+        print("Error:", e)
 
 while True:
     data = gpsDataFile.readline()
     if data:
         print_gps_data(data)
     else:
-        print("End of file start again!!!")
+        print("End of file!")
         gpsDataFile.close()
-        gpsDataFile = open('gpsTrack.gpx', 'r')
+        break
     time.sleep(1)
