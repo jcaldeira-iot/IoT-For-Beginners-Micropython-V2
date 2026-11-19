@@ -47,7 +47,6 @@ def print_gps_data(data):
 
     telemetry = json.dumps({ "gps" : {"lat" : lat, "lon" : lon}})
     print("Sending telemetry ", telemetry)
-
     try:
         reply = send_telemetry(telemetry)
         print("Reply ", reply)
