@@ -1,5 +1,6 @@
 import time
 import network
+import json
 
 ssid = '<NETWORK_SSID>'
 password = '<NETWORK_PASSWORD>'
