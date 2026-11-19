@@ -46,13 +46,13 @@ def print_gps_data(data):
         lat = float(parts[1])
         lon = float(parts[3])
 
-    telemetry = json.dumps({ "gps" : {"lat" : lat, "lon" : lon}})
-    print("Sending telemetry ", telemetry)
-    try:
-        reply = send_telemetry(telemetry)
-        print("Reply ", reply)
-    except Exception as e:
-        print("Error:", e)
+        telemetry = json.dumps({ "gps" : {"lat" : lat, "lon" : lon}})
+        print("Sending telemetry ", telemetry)
+        try:
+            reply = send_telemetry(telemetry)
+            print("Reply ", reply)
+        except Exception as e:
+            print("Error:", e)
 
 while True:
     data = gpsDataFile.readline()
